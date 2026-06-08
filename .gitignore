@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+
+# Source binaries are not tracked (licensed / large); names live in references/README.md
+references/*
+!references/README.md
