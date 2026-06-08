@@ -43,3 +43,8 @@ Format:
 - Pages: added `.gitignore` (ignores `references/*` except README, plus OS junk), `references/README.md` (source manifest); `CLAUDE.md` references/Lint rules updated to point at the manifest
 - Sources: n/a (schema only)
 - Notes: 80211-2024.pdf is licensed + 52 MB, so source binaries stay untracked; the manifest records their names/provenance. Lint now checks `sources` against `references/README.md`.
+
+## [2026-06-08] QUERY | Define a NIKA-style home WiFi roaming scenario (2 APs)
+- Pages: created `home-wifi-roaming-scenario.md`; added "Scenarios & issue catalogs" category to `index.md`
+- Sources: references/nika-benchmarking-paper.pdf §3.2 (the `N` component of `(N, I, T)`); references/80211-2024.pdf via the k/v/r wiki pages (Clause 11.10 / 11.21.7 / 13); OpenWrt + hostapd (openwrt.org, w1.fi/hostapd) for the realization/telemetry layer
+- Notes: Scenario = single L2 subnet, ap1 (gateway, QCA/OpenWrt) + ap2 (bridged dumb AP), roaming STA, optional wired target + monitor sniffer. Documents topology, shared-ESS + FT key-holder/MDID + 11k neighbor-list + 11v BTM (usteer/dawn) config, bring-up order, and a telemetry table (hostapd/wpa_supplicant events, station/survey dumps, mon-mode capture, data-plane probes, collectd/Influx/Grafana). Implementation/telemetry layer flagged as conventional, not drawn from the cited specs.

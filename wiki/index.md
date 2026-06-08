@@ -11,3 +11,7 @@ Registry of all wiki pages, grouped by category. Updated whenever a page is adde
 ## Benchmarking & methodology
 
 - [NIKA — Problem Specification Method](nika-problem-specification-summary.md) — how NIKA frames a reproducible network-troubleshooting problem: incident (N, I, T) + goal (G).
+
+## Scenarios & issue catalogs
+
+- [Home WiFi Roaming Scenario (2-AP testbed)](home-wifi-roaming-scenario.md) — NIKA-style `N`: two QCA/OpenWrt APs, one ESS + mobility domain, with topology, per-device 802.11k/v/r config, and telemetry instrumentation.
