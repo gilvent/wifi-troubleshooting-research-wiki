@@ -15,3 +15,4 @@ Registry of all wiki pages, grouped by category. Updated whenever a page is adde
 ## Scenarios & issue catalogs
 
 - [Home WiFi Roaming Scenario (2-AP testbed)](home-wifi-roaming-scenario.md) — NIKA-style `N`: two QCA/OpenWrt APs, one ESS + mobility domain, with topology, per-device 802.11k/v/r config, and telemetry instrumentation.
+- [Common WiFi Roaming Issues (curated issue catalog)](2026-06-08-wifi-roaming-common-issues.md) — 10 documented roaming faults as (Category, Root Cause, Key Signals), the candidate `I` faults for the scenario above.
