@@ -2,7 +2,7 @@
 title: Home WiFi Roaming Scenario (2-AP testbed)
 tags: [scenario, home-wifi, roaming, openwrt, qca, hostapd, 80211k, 80211v, 80211r, telemetry, nika]
 sources: [references/nika-benchmarking-paper.pdf, references/80211-2024.pdf, https://openwrt.org/docs/guide-user/network/wifi/basic, https://w1.fi/hostapd/]
-updated: 2026-06-08
+updated: 2026-07-08
 ---
 
 # Home WiFi Roaming Scenario (2-AP testbed)
@@ -78,7 +78,7 @@ whose coverage overlaps.
 |---|---|---|
 | WAN → ap1 | Ethernet (uplink) | Internet egress |
 | ap1 ⇄ ap2 | **wired Ethernet backhaul**, same bridge | Single broadcast domain; carries DHCP/ARP and the R0KH→R1KH PMK-R1 transport for FT |
-| ap1 ⇄ sta / ap2 ⇄ sta | 802.11 (5 GHz) | The two cells the STA roams between; **overlapping coverage**, **different channels** (36 / 149) so both are receivable during the roam |
+| ap1 ⇄ sta / ap2 ⇄ sta | 802.11 (5 GHz) | The two cells the STA roams between; **overlapping coverage**, **different channels** (36 / 149) — a lab convenience for a clean, controllable cell boundary in a small space, not an 802.11k/v/r requirement (same-channel roaming works identically) |
 | ap1 ⇄ host_srv | Ethernet | Wired KPI anchor |
 
 ## 2. Per-device configuration

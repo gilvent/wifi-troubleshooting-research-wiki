@@ -10,4 +10,4 @@ separately and place them in this folder.
 
 External web sources (cited inline via page `sources`; no local file):
 
-- mrn-cciew CWSP roaming series — `mrncciew.com` posts on 802.11 roaming basics (2014-09-02), 802.11r key hierarchy (2014-09-05), FT association (2014-09-06), FT over-the-air (2014-09-07), FT over-the-DS (2014-09-08), and the Fast Roaming Lessons course index (2020-12-10).
+- mrn-cciew CWSP roaming series — `mrncciew.com` posts on 802.11 roaming basics (2014-09-02), 802.11r key hierarchy (2014-09-05), FT association (2014-09-06), FT over-the-air (2014-09-07), FT over-the-DS (2014-09-08), 802.11k AP-assisted roaming (2014-09-11), and the Fast Roaming Lessons course index (2020-12-10).
