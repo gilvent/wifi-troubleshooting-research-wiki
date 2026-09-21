@@ -1,0 +1,729 @@
+<title>802.11r Roam Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #f6f8fc;
+    --ink: #101a2b;
+    --muted: #5c6b85;
+    --faint: #8a97ad;
+    --line: #d9e0ec;
+    --line-strong: #c2ccdd;
+
+    --client: #2563eb;
+    --ap1: #0891b2;
+    --ap2: #7c3aed;
+    --radius: #d97706;
+    --key: #059669;
+    --backplane: #94739e;
+
+    --client-soft: #dbe7ff;
+    --ap1-soft: #cdeef4;
+    --ap2-soft: #e7dcfb;
+    --radius-soft: #fbeacb;
+
+    --shadow: 0 1px 2px rgba(16,26,43,.06), 0 8px 28px rgba(16,26,43,.07);
+    --radius-lg: 14px;
+    --radius-md: 9px;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0a1120;
+      --surface: #111a2c;
+      --surface-2: #0e1626;
+      --ink: #e8eef9;
+      --muted: #9aa9c4;
+      --faint: #6b7a96;
+      --line: #21304a;
+      --line-strong: #2c3e5c;
+
+      --client: #5b9bff;
+      --ap1: #2dd4e8;
+      --ap2: #a888ff;
+      --radius: #f9b74e;
+      --key: #34d399;
+      --backplane: #b596c4;
+
+      --client-soft: #16264a;
+      --ap1-soft: #093442;
+      --ap2-soft: #241a45;
+      --radius-soft: #3a2c12;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a1120;
+    --surface: #111a2c;
+    --surface-2: #0e1626;
+    --ink: #e8eef9;
+    --muted: #9aa9c4;
+    --faint: #6b7a96;
+    --line: #21304a;
+    --line-strong: #2c3e5c;
+
+    --client: #5b9bff;
+    --ap1: #2dd4e8;
+    --ap2: #a888ff;
+    --radius: #f9b74e;
+    --key: #34d399;
+    --backplane: #b596c4;
+
+    --client-soft: #16264a;
+    --ap1-soft: #093442;
+    --ap2-soft: #241a45;
+    --radius-soft: #3a2c12;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 28px 56px;
+  }
+
+  header.page { margin-bottom: 22px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ap1);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  h1 {
+    font-size: clamp(26px, 4.2vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    margin: 0 0 10px;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+  .lede {
+    margin: 0;
+    max-width: 60ch;
+    color: var(--muted);
+    font-size: 15.5px;
+  }
+
+  /* ---- tabs ---- */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0 18px;
+  }
+  .tab {
+    appearance: none;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--muted);
+    padding: 9px 15px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .tab:hover { border-color: var(--ap1); color: var(--ink); }
+  .tab .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .tab[aria-selected="true"] {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .tab[aria-selected="true"] .num { color: var(--bg); opacity: .7; }
+
+  .scenario-note {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ap1);
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .scenario-note b { color: var(--ink); font-weight: 600; }
+
+  /* ---- main grid ---- */
+  .stage {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .diagram-card { padding: 8px 8px 14px; overflow: hidden; }
+  .diagram-scroll { overflow-x: auto; }
+  svg.seq { display: block; width: 100%; height: auto; min-width: 460px; }
+
+  svg text { font-family: 'IBM Plex Sans', sans-serif; }
+  .lane-label { font-weight: 600; font-size: 13px; }
+  .lane-sub { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .04em; }
+  .msg-label { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 500; }
+  .note-label { font-family: 'IBM Plex Sans'; font-size: 11.5px; font-style: italic; }
+  .hit { cursor: pointer; }
+
+  /* ---- controls ---- */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .ctrl {
+    appearance: none;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: border-color .15s, background .15s;
+  }
+  .ctrl:hover { border-color: var(--ap1); }
+  .ctrl:disabled { opacity: .38; cursor: default; }
+  .ctrl.play { width: auto; padding: 0 16px; gap: 8px; font-family: inherit; font-weight: 600; font-size: 13.5px; }
+  .ctrl svg { width: 16px; height: 16px; fill: currentColor; }
+  .stepcount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  .stepcount b { color: var(--ink); }
+
+  /* ---- detail panel ---- */
+  .detail { padding: 18px 18px 20px; position: sticky; top: 14px; }
+  @media (max-width: 860px) { .detail { position: static; } }
+
+  .detail-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .step-idx {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--faint);
+    font-weight: 600;
+  }
+  .spec-ref {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .frame-name { font-size: 20px; font-weight: 700; letter-spacing: -.01em; margin: 2px 0 12px; text-wrap: balance; }
+
+  .flow {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .party-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600; font-size: 11.5px;
+    padding: 3px 9px; border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .arrow-ico { color: var(--faint); font-weight: 700; }
+  .arrow-ico.bidir::before { content: "⇄"; }
+  .arrow-ico.mono::before { content: "→"; }
+
+  .fields-title, .prose-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--faint); margin: 0 0 8px;
+  }
+  .fields { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .field {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: var(--ink);
+  }
+  .field.key { border-color: color-mix(in srgb, var(--key) 45%, var(--line)); background: color-mix(in srgb, var(--key) 12%, var(--surface-2)); color: var(--key); font-weight: 600; }
+  .field.none { color: var(--faint); font-style: italic; background: transparent; }
+
+  .prose { font-size: 14px; color: var(--ink); margin: 0 0 18px; }
+  .prose.warn {
+    border-left: 3px solid var(--radius);
+    padding-left: 11px;
+    color: var(--muted);
+  }
+
+  /* ---- ledger ---- */
+  .ledger { border-top: 1px solid var(--line); padding-top: 15px; }
+  .ledger-cap { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  table.keys { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.keys th, table.keys td { padding: 7px 4px; text-align: center; }
+  table.keys thead th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px; font-weight: 600; color: var(--muted);
+    border-bottom: 1px solid var(--line);
+  }
+  table.keys tbody th {
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px; font-weight: 600;
+    white-space: nowrap;
+  }
+  table.keys tbody th .role { display: block; font-size: 9.5px; color: var(--faint); font-weight: 500; }
+  .cell { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; }
+  .cell.held { background: color-mix(in srgb, var(--key) 20%, transparent); color: var(--key); font-weight: 700; }
+  .cell.held::before { content: "✓"; }
+  .cell.empty { color: var(--faint); }
+  .cell.empty::before { content: "·"; font-size: 18px; line-height: 0; }
+
+  /* ---- legend ---- */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px 22px;
+    margin-top: 22px; padding: 15px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    font-size: 12.5px; color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 26px; height: 3px; border-radius: 2px; flex: none; }
+  .swatch.dash { height: 0; border-top: 2.5px dashed var(--faint); }
+  .legend b { color: var(--ink); font-weight: 600; }
+
+  .foot {
+    margin-top: 26px; font-size: 12.5px; color: var(--faint);
+    max-width: 70ch;
+  }
+  .foot code { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted); }
+
+  @keyframes flow-dash { to { stroke-dashoffset: -22; } }
+  .pulse { stroke-dasharray: 5 6; animation: flow-dash 1s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <p class="eyebrow">IEEE 802.11r · Fast BSS Transition</p>
+    <h1>How a fast roam actually talks</h1>
+    <p class="lede">Step through the frames exchanged between the client, the two access points, and the RADIUS server — and watch the key hierarchy fill in. Notice which participants go dark once a roam begins.</p>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Scenario"></div>
+  <div class="scenario-note" id="scenarioNote"></div>
+
+  <div class="stage">
+    <div class="panel diagram-card">
+      <div class="diagram-scroll">
+        <svg class="seq" id="seq" role="img" aria-label="Message sequence diagram"></svg>
+      </div>
+      <div class="controls">
+        <button class="ctrl" id="prev" aria-label="Previous step">
+          <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7z"/></svg>
+        </button>
+        <button class="ctrl play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="playIco"><path d="M7 5v14l11-7z"/></svg><span id="playTxt">Play</span></button>
+        <button class="ctrl" id="next" aria-label="Next step">
+          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7z"/></svg>
+        </button>
+        <span class="stepcount" id="stepcount"></span>
+      </div>
+    </div>
+
+    <div class="panel detail">
+      <div class="detail-head">
+        <span class="step-idx" id="stepIdx"></span>
+        <span class="spec-ref" id="specRef"></span>
+      </div>
+      <h2 class="frame-name" id="frameName"></h2>
+      <div class="flow" id="flow"></div>
+
+      <p class="fields-title">Carries</p>
+      <div class="fields" id="fields"></div>
+
+      <p class="prose" id="prose"></p>
+
+      <div class="ledger">
+        <p class="ledger-cap">Key hierarchy held after this step</p>
+        <table class="keys">
+          <thead>
+            <tr><th style="text-align:left">Party</th><th>PMK-R0</th><th>PMK-R1</th><th>PTK</th><th>GTK</th></tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="swatch" style="background:var(--client)"></span><b>Client</b> (S0KH/S1KH)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--ap1)"></span><b>AP-1</b> (R0KH · current)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--ap2)"></span><b>AP-2</b> (R1KH · target)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--radius)"></span><b>RADIUS</b> (auth server)</span>
+    <span class="legend-item"><span class="swatch dash"></span>advertisement / backplane</span>
+  </div>
+
+  <p class="foot">Grounded in the wiki's <b>802.11r — Fast BSS Transition</b> page (§ references shown per step) and the FT packet walkthrough. The backplane hops (AP-2 pulling PMK-R1 from the R0KH) are the transport the standard leaves <code>out of scope</code> — the classic <code>R0KH_UNREACHABLE</code> failure point. Field lists are representative, not byte-exact.</p>
+</div>
+
+<script>
+const LANES = [
+  { id: 'client', label: 'Client', sub: 'S0KH/S1KH', color: 'var(--client)', soft: 'var(--client-soft)' },
+  { id: 'ap1',    label: 'AP-1',   sub: 'R0KH',      color: 'var(--ap1)',    soft: 'var(--ap1-soft)' },
+  { id: 'ap2',    label: 'AP-2',   sub: 'R1KH',      color: 'var(--ap2)',    soft: 'var(--ap2-soft)' },
+  { id: 'radius', label: 'RADIUS', sub: 'AS',        color: 'var(--radius)', soft: 'var(--radius-soft)' },
+];
+const LX = { client: 100, ap1: 307, ap2: 513, radius: 720 };
+const W = 820;
+
+// key = one of PMK-R0, PMK-R1, PTK, GTK ; grants: [party, key]
+const SCENARIOS = {
+  init: {
+    tab: 'Initial association',
+    note: '<b>Done once</b>, when the client first joins the mobility domain. This is the slow path — full 802.1X/EAP against RADIUS — that builds the key hierarchy every later roam reuses.',
+    pre: {},
+    steps: [
+      { from:'ap1', to:'client', label:'Beacon / Probe Resp', style:'dash', ref:'§4',
+        name:'Beacon / Probe Response', fields:['MDE (MDID, FT policy)','RSNE'],
+        prose:'AP-1 advertises that it supports Fast BSS Transition and names its mobility domain.' },
+      { from:'client', to:'ap1', label:'Auth Request (Open)', ref:'§6.1',
+        name:'Open System Authentication — Request', fields:['Open System'],
+        prose:'Plain 802.11 open authentication. No FT keys exist yet.' },
+      { from:'ap1', to:'client', label:'Auth Response (Open)', ref:'§6.1',
+        name:'Open System Authentication — Response', fields:['Open System'],
+        prose:'The open exchange completes; the client may now associate.' },
+      { from:'client', to:'ap1', label:'Association Request', ref:'§6.1',
+        name:'Association Request', fields:['MDE','RSNE (AKM = FT-802.1X)','RSNXE'],
+        prose:'The client asks to join and selects the FT-802.1X AKM, committing to the FT key hierarchy.' },
+      { from:'ap1', to:'client', label:'Association Response', ref:'§6.1',
+        name:'Association Response', fields:['MDE','FTE (R0KH-ID, R1KH-ID)','RSNXE'],
+        prose:'AP-1 names the key holders. R0KH-ID is AP-1’s own NAS-Identifier — AP-1 is this client’s R0KH.' },
+      { from:'client', to:'ap1', label:'EAPOL / EAP', ref:'§6.1',
+        name:'802.1X / EAP authentication', fields:['EAPOL-Start','EAP identity/method'],
+        prose:'The 802.1X exchange begins. AP-1 is the Authenticator — it relays EAP but does not validate credentials itself.' },
+      { from:'ap1', to:'radius', label:'RADIUS Access-Request', ref:'§6.1',
+        name:'RADIUS Access-Request', fields:['EAP over RADIUS','NAS-Identifier'],
+        prose:'AP-1 forwards the EAP conversation to the authentication server (possibly several round trips).' },
+      { from:'radius', to:'ap1', label:'Access-Accept + MSK', ref:'§13.2',
+        name:'RADIUS Access-Accept', fields:['MSK'],
+        grants:[['ap1','PMK-R0'],['client','PMK-R0'],['ap1','PMK-R1'],['client','PMK-R1']],
+        prose:'The server validates the credential and returns the MSK. Both the client and AP-1 (R0KH) now derive PMK-R0, then PMK-R1.' },
+      { from:'client', to:'ap1', label:'FT 4-Way Handshake', bidir:true, ref:'§6.1',
+        name:'FT 4-Way Handshake (EAPOL-Key ×4)', fields:['ANonce','SNonce','MIC','GTK'],
+        grants:[['client','PTK'],['ap1','PTK'],['client','GTK'],['ap1','GTK']],
+        prose:'The four-message handshake confirms PMK-R1, derives the PTK, and installs the group key.' },
+      { from:'ap1', to:'client', label:'Data frames', bidir:true, style:'dash', ref:'§6.1',
+        name:'Controlled port unblocked', fields:['Encrypted 802.11 data'],
+        prose:'Authentication is complete and encrypted traffic flows. Every future roam will now reuse this hierarchy.' },
+    ]
+  },
+
+  ota: {
+    tab: 'Fast roam · over-the-air',
+    note: '<b>Before the roam</b>, the client and AP-1 (the R0KH) already hold the PMK-R0 hierarchy. The client talks <b>directly to the target AP-2</b>. RADIUS is never contacted.',
+    pre: { client:['PMK-R0','PMK-R1'], ap1:['PMK-R0','PMK-R1'] },
+    steps: [
+      { from:'ap2', to:'client', label:'Beacon (MDE)', style:'dash', ref:'§4 · k',
+        name:'Beacon / Neighbor Report', fields:['MDE (same MDID)'],
+        prose:'The client discovers AP-2 in the same mobility domain — often steered there by an 802.11k neighbor report.' },
+      { from:'client', to:'ap2', label:'Auth Request (FT)', ref:'§6.2',
+        name:'802.11 Authentication — FT algorithm', fields:['FTAA','RSNE (PMKR0Name)','MDE','FTE (SNonce, R0KH-ID)'],
+        prose:'The client begins FT authentication straight with the target, naming which PMK-R0 to use and picking its SNonce.' },
+      { from:'ap2', to:'ap1', label:'PMK-R1 Pull Request', style:'back', ref:'§13.2',
+        name:'PMK-R1 pull request (backplane)', fields:['RRB','R0KH-ID','PMKR1Name'],
+        prose:'AP-2 (the R1KH) does not hold this key, so it asks the R0KH over the vendor backplane — the part the standard leaves out of scope.' },
+      { from:'ap1', to:'ap2', label:'PMK-R1 Response', style:'back', ref:'§13.2',
+        name:'PMK-R1 response (backplane)', fields:['AES-key-wrapped PMK-R1'],
+        grants:[['ap2','PMK-R1']],
+        prose:'The R0KH derives PMK-R1 for this specific R1KH and returns it encrypted. If this hop fails, the roam is rejected with R0KH_UNREACHABLE.' },
+      { from:'ap2', to:'client', label:'Auth Response (FT)', ref:'§6.2',
+        name:'802.11 Authentication — FT response', fields:['MDE (FT-over-DS = 0)','FTE (ANonce, SNonce, R1KH-ID, R0KH-ID)'],
+        grants:[['client','PTK'],['ap2','PTK']],
+        prose:'AP-2 supplies its ANonce. Both sides now hold every input to the PTK and derive it locally.' },
+      { from:'client', to:'ap2', label:'Reassociation Request', ref:'§6.5',
+        name:'Reassociation Request', fields:['RSNE','MDE','FTE (MIC, ANonce, SNonce, R1KH-ID, R0KH-ID)'],
+        prose:'The MIC in the FTE proves the client already possesses the correct PTK — no separate 4-way handshake needed.' },
+      { from:'ap2', to:'client', label:'Reassociation Response', ref:'§6.2',
+        name:'Reassociation Response', fields:['FTE (MIC, ANonce, SNonce, R1KH-ID, R0KH-ID, GTK, IGTK)'],
+        grants:[['client','GTK'],['ap2','GTK']],
+        prose:'AP-2 delivers the wrapped group keys and opens the controlled port.' },
+      { from:'ap2', to:'client', label:'Data frames', bidir:true, style:'dash', ref:'§6.2',
+        name:'Roam complete', fields:['Encrypted 802.11 data'],
+        prose:'The client is on AP-2 with no EAP, no RADIUS, and no separate 4-way handshake — just four frames over the air.' },
+    ]
+  },
+
+  ds: {
+    tab: 'Fast roam · over-the-DS',
+    note: '<b>Same key math</b>, but the FT authentication is carried through the <b>current</b> AP-1 as Action frames before the client physically moves. Requires FT-over-DS (MDE bit B0 = 1).',
+    pre: { client:['PMK-R0','PMK-R1'], ap1:['PMK-R0','PMK-R1'] },
+    steps: [
+      { from:'client', to:'ap1', label:'FT Request (Action)', ref:'§6.3',
+        name:'FT Request — Action frame', fields:['FT Action','Target = AP-2 BSSID','FTE (SNonce, R0KH-ID)'],
+        prose:'While still associated to AP-1, the client names the target it wants to move to.' },
+      { from:'ap1', to:'ap2', label:'Relay (RRB)', style:'back', ref:'§13.10',
+        name:'Remote request relay (backplane)', fields:['MLME-REMOTE-REQUEST','PMK-R1'],
+        grants:[['ap2','PMK-R1']],
+        prose:'AP-1 (the R0KH) relays over the DS and hands the target its PMK-R1 in the same step.' },
+      { from:'ap2', to:'ap1', label:'FT Response (RRB)', style:'back', ref:'§13.10',
+        name:'FT Response over the backplane', fields:['FTE (ANonce, R1KH-ID)'],
+        prose:'The target returns its ANonce back through the current AP.' },
+      { from:'ap1', to:'client', label:'FT Response (Action)', ref:'§6.3',
+        name:'FT Response — Action frame', fields:['FTE (ANonce, SNonce, R1KH-ID, R0KH-ID)'],
+        grants:[['client','PTK'],['ap2','PTK']],
+        prose:'The client receives ANonce while still on AP-1, so the PTK is ready before it ever changes channel.' },
+      { note:true, label:'Client switches channel to AP-2', ref:'§13.5.3',
+        name:'Client moves to the target', fields:['(no frame — physical channel change)'],
+        prose:'All authentication is already done. Only the reassociation remains to happen on the target.' },
+      { from:'client', to:'ap2', label:'Reassociation Request', ref:'§6.5',
+        name:'Reassociation Request', fields:['RSNE','MDE','FTE (MIC, ANonce, SNonce, R1KH-ID, R0KH-ID)'],
+        prose:'Now on AP-2, the client presents its MIC — proof it already holds the PTK.' },
+      { from:'ap2', to:'client', label:'Reassociation Response', ref:'§6.3',
+        name:'Reassociation Response', fields:['FTE (MIC, GTK, IGTK)'],
+        grants:[['client','GTK'],['ap2','GTK']],
+        prose:'Group keys delivered, port opens. Because the auth round finished before the move, the on-air gap is minimal.' },
+    ]
+  }
+};
+
+const KEYCOLS = ['PMK-R0','PMK-R1','PTK','GTK'];
+const LEDGER_ROWS = [
+  { id:'client', label:'Client', role:'S0KH/S1KH' },
+  { id:'ap1', label:'AP-1', role:'R0KH' },
+  { id:'ap2', label:'AP-2', role:'R1KH' },
+];
+
+let current = 'init';
+let step = 0;
+let playing = false;
+let timer = null;
+
+const scroll = document.querySelector('.diagram-scroll');
+
+function usedLanes(sc) {
+  const set = new Set();
+  sc.steps.forEach(s => { if (!s.note) { set.add(s.from); set.add(s.to); } });
+  return set;
+}
+
+function ledgerAt(sc, uptoStep) {
+  const held = {};
+  LEDGER_ROWS.forEach(r => held[r.id] = new Set(sc.pre[r.id] || []));
+  for (let i = 0; i <= uptoStep; i++) {
+    (sc.steps[i].grants || []).forEach(([party, key]) => held[party] && held[party].add(key));
+  }
+  return held;
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function drawDiagram() {
+  const sc = SCENARIOS[current];
+  const steps = sc.steps;
+  const used = usedLanes(sc);
+  const firstY = 92, dy = 66;
+  const height = firstY + steps.length * dy + 18;
+
+  let s = `<svg class="seq" viewBox="0 0 ${W} ${height}" width="${W}" height="${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Message sequence diagram" style="width:100%;height:auto">`;
+  let hits = '';
+
+  // lifelines + headers
+  LANES.forEach(l => {
+    const x = LX[l.id];
+    const active = used.has(l.id);
+    const op = active ? 1 : 0.28;
+    s += `<line x1="${x}" y1="66" x2="${x}" y2="${height-8}" stroke="var(--line-strong)" stroke-width="1.4" stroke-dasharray="3 5" opacity="${op}"/>`;
+    s += `<g opacity="${op}">`;
+    s += `<rect x="${x-58}" y="26" width="116" height="34" rx="8" fill="${l.soft}" stroke="${l.color}" stroke-width="1.4"/>`;
+    s += `<text class="lane-label" x="${x}" y="42" text-anchor="middle" fill="var(--ink)">${l.label}</text>`;
+    s += `<text class="lane-sub" x="${x}" y="53" text-anchor="middle" fill="${l.color}">${l.sub}</text>`;
+    s += `</g>`;
+    if (!active) {
+      s += `<text class="lane-sub" x="${x}" y="${height-2}" text-anchor="middle" fill="var(--faint)" opacity="0.7">not contacted</text>`;
+    }
+  });
+
+  steps.forEach((st, i) => {
+    const y = firstY + i * dy;
+    const isActive = i === step;
+    hits += `<rect class="hit" x="0" y="${y-dy/2}" width="${W}" height="${dy}" fill="transparent" data-step="${i}"/>`;
+
+    if (st.note) {
+      const op = isActive ? 1 : 0.4;
+      s += `<line x1="80" y1="${y}" x2="${W-80}" y2="${y}" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 4" opacity="${op}"/>`;
+      s += `<rect x="${W/2-140}" y="${y-13}" width="280" height="26" rx="13" fill="var(--surface-2)" stroke="var(--line)" opacity="${op}"/>`;
+      s += `<text class="note-label" x="${W/2}" y="${y+4}" text-anchor="middle" fill="var(--muted)" opacity="${op}">${esc(st.label)}</text>`;
+      return;
+    }
+
+    const x1 = LX[st.from], x2 = LX[st.to];
+    const dir = x2 > x1 ? 1 : -1;
+    const lane = LANES.find(l => l.id === st.from);
+    let color = lane.color;
+    if (st.style === 'back') color = 'var(--backplane)';
+    const op = isActive ? 1 : 0.34;
+    const wdt = isActive ? 3 : 1.7;
+    const dash = (st.style === 'dash') ? ' stroke-dasharray="6 5"' : (st.style === 'back' ? ' stroke-dasharray="7 5"' : '');
+
+    // label centered above
+    const midX = (x1 + x2) / 2;
+    s += `<text class="msg-label" x="${midX}" y="${y-9}" text-anchor="middle" fill="${isActive?'var(--ink)':'var(--muted)'}" opacity="${isActive?1:0.7}">${esc(st.label)}</text>`;
+
+    const headOff = 9;
+    const lineEnd = x2 - dir * headOff;
+    s += `<line x1="${x1}" y1="${y}" x2="${lineEnd}" y2="${y}" stroke="${color}" stroke-width="${wdt}"${dash} opacity="${op}"/>`;
+    // arrowhead(s)
+    s += arrowhead(x2, y, dir, color, op);
+    if (st.bidir) {
+      const lineStart = x1 + dir * headOff;
+      s += `<line x1="${x1}" y1="${y}" x2="${lineStart}" y2="${y}" stroke="${color}" stroke-width="0"/>`;
+      s += arrowhead(x1, y, -dir, color, op);
+    }
+    if (isActive) {
+      s += `<line class="pulse" x1="${x1}" y1="${y}" x2="${lineEnd}" y2="${y}" stroke="${color}" stroke-width="${wdt}" opacity="0.9"/>`;
+    }
+  });
+
+  s += hits;
+  s += `</svg>`;
+  scroll.innerHTML = s;
+  scroll.querySelectorAll('.hit').forEach(h => {
+    h.addEventListener('click', () => { stop(); step = +h.dataset.step; render(); });
+  });
+}
+
+function arrowhead(x, y, dir, color, op) {
+  const b = x - dir * 9;
+  return `<path d="M ${x} ${y} L ${b} ${y-4.5} L ${b} ${y+4.5} Z" fill="${color}" opacity="${op}"/>`;
+}
+
+function render() {
+  const sc = SCENARIOS[current];
+  const st = sc.steps[step];
+
+  drawDiagram();
+
+  // controls
+  document.getElementById('prev').disabled = step === 0;
+  document.getElementById('next').disabled = step === sc.steps.length - 1;
+  document.getElementById('stepcount').innerHTML = `<b>${step+1}</b> / ${sc.steps.length}`;
+
+  // detail
+  document.getElementById('stepIdx').textContent = `STEP ${String(step+1).padStart(2,'0')}`;
+  document.getElementById('specRef').textContent = st.ref || '';
+  document.getElementById('frameName').textContent = st.name;
+
+  // flow
+  const flow = document.getElementById('flow');
+  if (st.note) {
+    flow.innerHTML = `<span class="party-chip" style="color:var(--muted);border-color:var(--line)">physical move</span>`;
+  } else {
+    const f = LANES.find(l=>l.id===st.from), t = LANES.find(l=>l.id===st.to);
+    const chip = (l) => `<span class="party-chip" style="color:${l.color};background:${l.soft};border-color:${l.color}">${l.label}</span>`;
+    const ico = st.bidir ? '<span class="arrow-ico bidir"></span>' : '<span class="arrow-ico mono"></span>';
+    flow.innerHTML = chip(f) + ico + chip(t);
+  }
+
+  // fields
+  const fields = document.getElementById('fields');
+  fields.innerHTML = (st.fields || []).map(f => {
+    const isKey = /MSK|PMK|PTK|GTK|IGTK/.test(f) && !/PMKR0Name|PMKR1Name/.test(f);
+    return `<span class="field${isKey?' key':''}">${esc(f)}</span>`;
+  }).join('') || '<span class="field none">—</span>';
+
+  // prose
+  const prose = document.getElementById('prose');
+  prose.textContent = st.prose;
+  prose.className = 'prose' + (/R0KH_UNREACHABLE|out of scope|backplane/.test(st.prose) ? ' warn' : '');
+
+  // ledger
+  const held = ledgerAt(sc, step);
+  document.getElementById('ledgerBody').innerHTML = LEDGER_ROWS.map(r => {
+    const cells = KEYCOLS.map(k => {
+      const on = held[r.id].has(k);
+      return `<td><span class="cell ${on?'held':'empty'}"></span></td>`;
+    }).join('');
+    return `<tr><th>${r.label}<span class="role">${r.role}</span></th>${cells}</tr>`;
+  }).join('');
+}
+
+function buildTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = Object.entries(SCENARIOS).map(([k, sc], i) =>
+    `<button class="tab" role="tab" data-k="${k}" aria-selected="${k===current}"><span class="num">${String(i+1).padStart(2,'0')}</span>${sc.tab}</button>`
+  ).join('');
+  tabs.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      stop();
+      current = t.dataset.k; step = 0;
+      tabs.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x.dataset.k === current));
+      document.getElementById('scenarioNote').innerHTML = SCENARIOS[current].note;
+      render();
+    });
+  });
+}
+
+function stop() {
+  playing = false;
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('playIco').innerHTML = '<path d="M7 5v14l11-7z"/>';
+  document.getElementById('playTxt').textContent = 'Play';
+}
+function play() {
+  const sc = SCENARIOS[current];
+  if (step >= sc.steps.length - 1) step = -1;
+  playing = true;
+  document.getElementById('playIco').innerHTML = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+  document.getElementById('playTxt').textContent = 'Pause';
+  timer = setInterval(() => {
+    if (step >= SCENARIOS[current].steps.length - 1) { stop(); return; }
+    step++; render();
+  }, 1700);
+}
+
+document.getElementById('prev').addEventListener('click', () => { stop(); if (step>0){step--; render();} });
+document.getElementById('next').addEventListener('click', () => { stop(); if (step<SCENARIOS[current].steps.length-1){step++; render();} });
+document.getElementById('play').addEventListener('click', () => { playing ? stop() : play(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') { stop(); if (step>0){step--; render();} }
+  else if (e.key === 'ArrowRight') { stop(); if (step<SCENARIOS[current].steps.length-1){step++; render();} }
+});
+
+buildTabs();
+document.getElementById('scenarioNote').innerHTML = SCENARIOS[current].note;
+render();
+</script>

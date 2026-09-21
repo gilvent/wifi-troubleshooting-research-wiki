@@ -2,7 +2,7 @@
 title: 802.11r — Fast BSS Transition (FT)
 tags: [80211r, fast-bss-transition, ft, key-hierarchy, roaming, security]
 sources: [references/80211-2024.pdf]
-updated: 2026-06-08
+updated: 2026-09-21
 ---
 
 # 802.11r — Fast BSS Transition (FT)
@@ -13,6 +13,10 @@ so a roam completes in one round trip instead of a full 802.1X/EAP + 4-way hands
 > Sources: IEEE Std 802.11-2024, **Clause 13 "Fast BSS transition"** (pp. 3141–3190),
 > FT elements in **9.4.2.45–9.4.2.49** (pp. 1112–1117), FT Action frames in **9.6.8** (p. 1721),
 > and the FT key hierarchy in Clause 12 (Security).
+
+> Interactive: [FT roam message-sequence walkthrough](assets/ft-roam.html) — step through the
+> frames for initial association vs. over-the-air and over-the-DS roams, with a live
+> key-hierarchy ledger. Open the HTML file in a browser.
 
 ## 1. What problem FT solves
 
