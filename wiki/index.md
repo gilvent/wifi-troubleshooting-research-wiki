@@ -22,7 +22,7 @@ Registry of all wiki pages, grouped by category. Updated whenever a page is adde
 
 ## Telemetry & data collection
 
-- [WiFi Troubleshooting Data Collection — Industry Mechanisms](2026-07-14-wifi-data-collection-mechanisms.md) — survey of the collection mechanisms (infrastructure streaming, scanning radios, triggered capture, synthetic testing, client agents, 802.11k, and the independent passive sniffer node) across commercial AIOps vendors and open standards, mapped to the edge-diagnostic-agent research direction.
+- [WiFi Troubleshooting Data Collection — Industry Mechanisms](2026-07-14-wifi-data-collection-mechanisms.md) — survey of the collection mechanisms (infrastructure streaming, scanning radios, triggered capture, synthetic testing, client agents, 802.11k, and the independent passive sniffer node) across commercial AIOps vendors and open standards.
 
 ## Scenarios & issue catalogs
 
