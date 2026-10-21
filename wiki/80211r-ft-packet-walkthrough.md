@@ -1,8 +1,8 @@
 ---
 title: 802.11r FT in Practice — Key Hierarchy, Initial Association & Roams (packet walkthrough)
 tags: [80211r, fast-bss-transition, ft, key-hierarchy, over-the-air, over-the-ds, packet-capture, cisco, cwsp]
-sources: [https://mrncciew.com/2014/09/05/cwsp-802-11r-key-hierarchy/, https://mrncciew.com/2014/09/06/cwsp-802-11r-ft-association/, https://mrncciew.com/2014/09/07/cwsp-802-11r-over-the-air-ft/, https://mrncciew.com/2014/09/08/cwsp-802-11r-over-the-ds-ft/]
-updated: 2026-06-17
+sources: [references/80211-2024.pdf, https://mrncciew.com/2014/09/05/cwsp-802-11r-key-hierarchy/, https://mrncciew.com/2014/09/06/cwsp-802-11r-ft-association/, https://mrncciew.com/2014/09/07/cwsp-802-11r-over-the-air-ft/, https://mrncciew.com/2014/09/08/cwsp-802-11r-over-the-ds-ft/]
+updated: 2026-10-21
 ---
 
 # 802.11r FT in Practice — Key Hierarchy, Initial Association & Roams (packet walkthrough)
@@ -13,9 +13,10 @@ over-the-DS roam exchanges with observed timings.*
 
 > Sources: mrn-cciew CWSP 802.11r series — **Key Hierarchy** (2014-09-05), **FT
 > Association** (2014-09-06), **FT over-the-Air** (2014-09-07), **FT over-the-DS**
-> (2014-09-08). Lab: Cisco WLC 4402 (7.0.116.0) + LAPs, ACS v5.2 RADIUS. For the
+> (2014-09-08). Lab: Cisco WLC 4402 (7.0.116.0) + LAPs, ACS v5.2 RADIUS. The §5 radio-channel
+> row draws on IEEE Std 802.11-2024 **§13.1** (p. 3141). For the
 > standards definitions of every element and key below, see
-> [802.11r — Fast BSS Transition (spec)](80211r-fast-bss-transition.md).
+> [802.11r — Fast BSS Transition (spec)](2026-06-08-80211r-fast-bss-transition.md).
 
 ## 1. Key hierarchy on a controller/AP deployment
 
@@ -118,6 +119,7 @@ exchanges **with the target AP through its current AP**, over the DS — *before
 | Auth carrier | FT Authentication frames | **FT Action** frames |
 | MDIE FT-over-DS bit | 0 | 1 |
 | When the negotiation happens | as the client arrives at target | **before** the client leaves current AP |
+| Client radio during negotiation | **tuned to the target's channel** (already off the serving channel) — it must be, since the FTO "communicates directly with the target AP" (§13.1) | **stays on the serving channel** (FT Action frames go via the current AP, §13.1); only tunes to the target for the Reassociation |
 | Observed roam (source lab) | ~14 ms | ~88 ms |
 
 Both finish the actual move with the same **Reassociation Request/Response** carrying the

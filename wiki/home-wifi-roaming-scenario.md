@@ -15,9 +15,9 @@ injected and graded.*
 > (topology + devices + protocols + initial configs, control plane, deployed telemetry),
 > *NIKA paper* §3.2 (see [NIKA — Problem Specification Method](nika-problem-specification-summary.md)).
 > Protocol/config layer grounded in IEEE Std 802.11-2024 via
-> [802.11k](80211k-radio-resource-measurement.md) (Clause 11.10),
-> [802.11v](80211v-wireless-network-management.md) (Clause 11.21.7, BTM),
-> [802.11r](80211r-fast-bss-transition.md) (Clause 13, FT). Implementation/realization and
+> [802.11k](2026-06-08-80211k-radio-resource-measurement.md) (Clause 11.10),
+> [802.11v](2026-06-08-80211v-wireless-network-management.md) (Clause 11.21.7, BTM),
+> [802.11r](2026-06-08-80211r-fast-bss-transition.md) (Clause 13, FT). Implementation/realization and
 > telemetry tooling are standard OpenWrt/`hostapd` practice (openwrt.org, w1.fi/hostapd), named at
 > the convention level rather than drawn from the cited specs.
 
@@ -92,12 +92,12 @@ whose coverage overlaps.
   provoked when the STA moves.
 - **BSS Max Idle Period** (802.11v keep-alive) set sanely — a too-short idle period produces
   "silent" disassociations that masquerade as roam failures
-  ([802.11v §11.21.13](80211v-wireless-network-management.md)).
+  ([802.11v §11.21.13](2026-06-08-80211v-wireless-network-management.md)).
 
 ### 2.2 802.11r — Fast BSS Transition (FT)
 
 Enables single-round-trip roams instead of a full 802.1X/EAP + 4-way handshake on every move
-([802.11r §13](80211r-fast-bss-transition.md)). Both APs configured with:
+([802.11r §13](2026-06-08-80211r-fast-bss-transition.md)). Both APs configured with:
 
 - A single **FT AKM** advertised in the RSNE (FT-PSK `00-0F-AC:4`, FT-SAE `…:9`, or FT-802.1X
   `…:3`) — must be *identical* across the MD or association is rejected (`STATUS_INVALID_AKMP`).
@@ -114,7 +114,7 @@ Enables single-round-trip roams instead of a full 802.1X/EAP + 4-way handshake o
 ### 2.3 802.11k — Radio Resource Measurement (RRM)
 
 The measurement layer that feeds roam decisions with data instead of blind scans
-([802.11k Clause 11.10](80211k-radio-resource-measurement.md)). Both APs:
+([802.11k Clause 11.10](2026-06-08-80211k-radio-resource-measurement.md)). Both APs:
 
 - `ieee80211k=1` equivalent: advertise **RM Enabled Capabilities** with **Neighbor Report** and
   **Beacon/Link Measurement** bits set.
@@ -125,7 +125,7 @@ The measurement layer that feeds roam decisions with data instead of blind scans
 
 ### 2.4 802.11v — Wireless Network Management (BTM)
 
-The AP-driven steer ([802.11v §11.21.7](80211v-wireless-network-management.md)):
+The AP-driven steer ([802.11v §11.21.7](2026-06-08-80211v-wireless-network-management.md)):
 
 - `bss_transition=1` (WNM/BTM bit in Extended Capabilities) on both APs.
 - A **roam-steering controller** is the *control plane for roaming* in a 2-AP home setup. On OpenWrt
@@ -179,4 +179,4 @@ an agent any subset (e.g. logs-only, or logs + station dump but no sniffer) to v
 ## 5. Related pages
 
 - [NIKA — Problem Specification Method](nika-problem-specification-summary.md) — the `(N, I, T)` + `G` framing this scenario instantiates.
-- [802.11k](80211k-radio-resource-measurement.md) · [802.11v](80211v-wireless-network-management.md) · [802.11r](80211r-fast-bss-transition.md) — the protocol layer configured above.
+- [802.11k](2026-06-08-80211k-radio-resource-measurement.md) · [802.11v](2026-06-08-80211v-wireless-network-management.md) · [802.11r](2026-06-08-80211r-fast-bss-transition.md) — the protocol layer configured above.

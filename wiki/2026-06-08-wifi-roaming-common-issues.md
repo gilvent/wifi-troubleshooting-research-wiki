@@ -15,8 +15,8 @@ NIKA "Network Issues" taxonomy — the candidate `I = (Dev, Comp, RC)` faults to
 > 3-vote adversarially verified → 24 confirmed, 1 refuted/excluded). Primary vendor docs (Cisco,
 > Aruba/HPE, Juniper Mist, Meraki), OpenWrt/`hostapd`, and the CWNP-grade mrn-cciew write-ups; the
 > protocol layer is anchored in IEEE Std 802.11-2024 via this wiki's
-> [802.11k](80211k-radio-resource-measurement.md) / [802.11v](80211v-wireless-network-management.md) /
-> [802.11r](80211r-fast-bss-transition.md) pages. Per-row source tags resolve in the
+> [802.11k](2026-06-08-80211k-radio-resource-measurement.md) / [802.11v](2026-06-08-80211v-wireless-network-management.md) /
+> [802.11r](2026-06-08-80211r-fast-bss-transition.md) pages. Per-row source tags resolve in the
 > [Sources legend](#sources-legend). Each root cause and its signals carry the supporting source(s)
 > inline.
 
@@ -47,7 +47,7 @@ exchanges, RSSI/metric thresholds — an operator or agent would see, not the fi
 | # | Root Cause | Key Signals | (Dev, Comp) | Source |
 |---|---|---|---|---|
 | 4 | **Cached-key miss at the target AP (no PMKID / PMK-R1 / OKC entry; or all fast-roam methods disabled).** The fast-roam shortcut breaks, forcing a **full EAP re-authentication + fresh 4-way handshake** on every roam. | C9800 RA-trace: `Failed to Dot11 validate dot11i pmkids. No matching pmkid for the pmk available in cache`; full EAP exchange (EAP-Identity, EAP method, RADIUS Access-Challenge/Accept) then complete 4-way handshake (M1–M4); roam latency in the **hundreds of ms** (voice/video impact); target AP can't acknowledge the FT/reassoc because it doesn't hold the client's PMKID. Working FT instead shows `Dot11 validate dot11r pmkid. 11r PMKID match found` → `Fast roam = True`. | `ap2`(target), FT-PMK-R1 / OKC cache | [Juniper-Mist], [Cisco-221671], [Cisco-11r-DG] |
-| 5 | **Misconfigured key-holder lists / inconsistent mobility-domain ID.** Missing or mismatched `r0kh`/`r1kh` entries, or a different MDID across APs, breaks the FT key hierarchy so the STA reauthenticates instead of fast-roaming. (In OpenWrt/`hostapd` FT-PSK, the documented fix is `ft_psk_generate_local=1` + a consistent `mobility_domain` derived from the SSID's md5sum rather than the old hardcoded `4f57`; **does not apply to FT-EAP**, which still needs R0KH→R1KH push/pull.) | FT fails when `r0kh`/`r1kh` entries are missing/mismatched; clients reauthenticate (lose fast roam) when MDIDs differ across APs; FT begins working after local PSK key generation + a shared md5sum-derived mobility domain. (Backplane-unreachable analog in the standard: `R0KH_UNREACHABLE`, see [802.11r §6.2](80211r-fast-bss-transition.md#62-ft-protocol-over-the-air-in-an-rsn-1352-fig-13-5).) | `ap1/ap2`+`backhaul`, hostapd-FT R0KH/R1KH + MDID | [OpenWrt-FT], [Cisco-11r-DG], [Aruba-VRD] |
+| 5 | **Misconfigured key-holder lists / inconsistent mobility-domain ID.** Missing or mismatched `r0kh`/`r1kh` entries, or a different MDID across APs, breaks the FT key hierarchy so the STA reauthenticates instead of fast-roaming. (In OpenWrt/`hostapd` FT-PSK, the documented fix is `ft_psk_generate_local=1` + a consistent `mobility_domain` derived from the SSID's md5sum rather than the old hardcoded `4f57`; **does not apply to FT-EAP**, which still needs R0KH→R1KH push/pull.) | FT fails when `r0kh`/`r1kh` entries are missing/mismatched; clients reauthenticate (lose fast roam) when MDIDs differ across APs; FT begins working after local PSK key generation + a shared md5sum-derived mobility domain. (Backplane-unreachable analog in the standard: `R0KH_UNREACHABLE`, see [802.11r §6.2](2026-06-08-80211r-fast-bss-transition.md#62-ft-protocol-over-the-air-in-an-rsn-1352-fig-13-5).) | `ap1/ap2`+`backhaul`, hostapd-FT R0KH/R1KH + MDID | [OpenWrt-FT], [Cisco-11r-DG], [Aruba-VRD] |
 | 6 | **Reassociation timeout set below the ~20 s default.** On an L2 roam the next AP cancels the cached PMK-R1 if the client doesn't reassociate within the window, so FT clients fall back to full reauthentication. | 802.11r clients reauthenticate (no fast roam) after an L2 roam when the reassociation timeout < 20 s; full reauth observed at a controller boundary on L2 roam. | `ap2`(target), FT reassoc-timeout | [Cisco-11r-DG] |
 
 ### Client compatibility / fast-roam enablement
@@ -94,5 +94,5 @@ exchanges, RSSI/metric thresholds — an operator or agent would see, not the fi
 ## Related pages
 
 - [Home WiFi Roaming Scenario](home-wifi-roaming-scenario.md) — the `N` these issues inject into.
-- [802.11k](80211k-radio-resource-measurement.md) · [802.11v](80211v-wireless-network-management.md) · [802.11r](80211r-fast-bss-transition.md) — the standard mechanisms behind issues #2–#7.
+- [802.11k](2026-06-08-80211k-radio-resource-measurement.md) · [802.11v](2026-06-08-80211v-wireless-network-management.md) · [802.11r](2026-06-08-80211r-fast-bss-transition.md) — the standard mechanisms behind issues #2–#7.
 - [NIKA — Problem Specification Method](nika-problem-specification-summary.md) — the `(Dev, Comp, RC)` issue formalism this catalog follows.

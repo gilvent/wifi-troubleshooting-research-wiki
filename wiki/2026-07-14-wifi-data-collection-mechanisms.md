@@ -41,7 +41,7 @@ updated: 2026-08-07
 
 *Survey of how commercial AI/cloud WiFi-troubleshooting systems and open telemetry standards actually collect their data: what is measured, from which vantage point, over what transport, and — critically for this wiki's research direction — when collection escalates.*
 
-> Sources: vendor documentation and datasheets (Juniper Mist, Cisco Meraki, Cisco Catalyst Center, HPE Aruba Central/UXI, Extreme CloudIQ, Nile, 7SIGNAL, Wyebot, ThousandEyes), open specs and reference implementations (Wi-Fi Alliance Data Elements Jan-2024 overview, Broadband Forum TR-369/TR-181/TR-157, OpenSync `src/sm`, TIP OpenWiFi `PROTOCOL.md`, prplMesh `ap_metrics.md`), and [the research direction](edge-diagnostic-agent-research-direction.md) §3.1, §5, §9 for framing. The passive-sniffer mechanism (§6) draws on Cisco's 802.11 sniffing fundamentals (doc 200527) and Catalyst 9800 Sniffer Mode guide (doc 217057), HPE Aruba AOS-8 AP packet-capture CLI, LiveAction/Omnipeek, the WLAN Pi user guide and WLANPiShark2, Intuitibits (Airtool/WiFi Explorer remote sensors), the Wireshark WLAN capture wiki, Meraki's wireless-capture analysis guide, mrn-cciew, and an IEEE multi-channel-capture paper. Compiled 2026-07-14 (mechanisms 1–6, transport, escalation) and extended 2026-08-07 (§6 independent sniffer node) via parallel, adversarially-verified web-research passes; per-claim URLs inline. Unverifiable claims are flagged in §8.
+> Sources: vendor documentation and datasheets (Juniper Mist, Cisco Meraki, Cisco Catalyst Center, HPE Aruba Central/UXI, Extreme CloudIQ, Nile, 7SIGNAL, Wyebot, ThousandEyes), open specs and reference implementations (Wi-Fi Alliance Data Elements Jan-2024 overview, Broadband Forum TR-369/TR-181/TR-157, OpenSync `src/sm`, TIP OpenWiFi `PROTOCOL.md`, prplMesh `ap_metrics.md`), and the research direction §3.1, §5, §9 for framing. The passive-sniffer mechanism (§6) draws on Cisco's 802.11 sniffing fundamentals (doc 200527) and Catalyst 9800 Sniffer Mode guide (doc 217057), HPE Aruba AOS-8 AP packet-capture CLI, LiveAction/Omnipeek, the WLAN Pi user guide and WLANPiShark2, Intuitibits (Airtool/WiFi Explorer remote sensors), the Wireshark WLAN capture wiki, Meraki's wireless-capture analysis guide, mrn-cciew, and an IEEE multi-channel-capture paper. Compiled 2026-07-14 (mechanisms 1–6, transport, escalation) and extended 2026-08-07 (§6 independent sniffer node) via parallel, adversarially-verified web-research passes; per-claim URLs inline. Unverifiable claims are flagged in §8.
 
 ## 1. The collection mechanisms
 
@@ -135,7 +135,7 @@ This is the mechanism the wiki's own [home-lab testbed](home-wifi-roaming-scenar
 
 ## 7. Relevance to the edge-diagnostic-agent research direction
 
-Mapping this survey onto [the research direction](edge-diagnostic-agent-research-direction.md):
+Mapping this survey onto the research direction:
 
 - **The two-tier structure already exists** (§4) — always-on cheap telemetry + gated deep capture is standard practice. What does not exist anywhere in the survey is a *policy* deciding escalation: triggers are hardcoded event lists (Mist's failure enum, Meraki's 5-min dedup). This is direct evidence for the gap claimed in §9 of the direction: "commercial systems do not treat monitoring cost as a decision variable at all."
 - **Retention windows quantify RQ1's irreversible information loss**: Mist pcaps 7 days / telemetry 60-day rolling; Meraki client RSSI **2 hours**, proactive pcaps 7 days; Cisco anomaly pcaps 1.05 GB FIFO. A post-hoc query outside these windows is unanswerable by construction — the industry has already committed to retention policies, just not learned ones.
@@ -159,6 +159,6 @@ Added with the §6 sniffer research (2026-08-07):
 ## Related pages
 
 - [Home WiFi Roaming Scenario](home-wifi-roaming-scenario.md) — the testbed whose telemetry table (hostapd events, station dumps, monitor capture) is the DIY analog of mechanisms 1–3 here.
-- [802.11k — Radio Resource Measurement](80211k-radio-resource-measurement.md) — the beacon-report primitive that turns clients into sensors.
-- [802.11v — Wireless Network Management](80211v-wireless-network-management.md) — BTM as the steering actuator vendors wrap policies around.
+- [802.11k — Radio Resource Measurement](2026-06-08-80211k-radio-resource-measurement.md) — the beacon-report primitive that turns clients into sensors.
+- [802.11v — Wireless Network Management](2026-06-08-80211v-wireless-network-management.md) — BTM as the steering actuator vendors wrap policies around.
 - [Common WiFi Roaming Issues](2026-06-08-wifi-roaming-common-issues.md) — the fault classes this telemetry must discriminate.

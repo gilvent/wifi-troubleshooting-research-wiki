@@ -31,8 +31,8 @@ per-type subfolders until a category is genuinely unwieldy.
 
 ## Page structure
 
-File name: kebab-case, topic first (e.g. `80211r-fast-bss-transition.md`); date-prefix
-dated reports (e.g. `2026-06-08-roaming-kpi-comparison.md`). Generated images/charts go in
+File name: the page's creation date, then a kebab-case topic (e.g.
+`2026-06-08-80211r-fast-bss-transition.md`). Generated images/charts go in
 `wiki/assets/` (create it when the first one appears).
 
 ```yaml

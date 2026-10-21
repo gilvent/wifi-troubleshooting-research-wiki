@@ -1,8 +1,8 @@
 ---
 title: 802.11v — Wireless Network Management (WNM)
-tags: [80211v, wnm, bss-transition-management, btm, roaming]
+tags: [80211v, wnm, bss-transition-management, btm, roaming, multi-band]
 sources: [references/80211-2024.pdf]
-updated: 2026-06-08
+updated: 2026-10-21
 ---
 
 # 802.11v — Wireless Network Management (WNM)
@@ -137,6 +137,13 @@ discovery       (Disassoc     to the chosen AP
 
 The **Neighbor Report element** is the shared data structure: produced under 802.11k, used
 verbatim as the BTM "candidate list," and the chosen target is reached fast via 802.11r.
+
+### 4.1 BTM in a cross-band FT roam
+
+BTM picks the target, FT makes the move, and neither knows about bands: §11.21.7 never
+mentions band or FT, so a cross-band FT roam is an ordinary BTM steer whose chosen target is
+on another band. See [Cross-Band Roaming with 802.11k/v/r](2026-10-21-cross-band-roaming.md)
+for the candidate-list fields, Preference/Abridged steering, and cross-band failure modes.
 
 ## 5. Selected supporting WNM services
 

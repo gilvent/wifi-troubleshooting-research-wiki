@@ -63,7 +63,7 @@ Key caching removes the **authentication** cost but still does a handshake per r
 CCKM). 802.11r **FT** goes further: it pre-establishes a key hierarchy once and
 **pre-computes the PTK before the client leaves**, so the roam completes in one round trip
 without a separate 4-way handshake — and does so as an open multi-vendor standard. See
-[802.11r (spec)](80211r-fast-bss-transition.md) and the
+[802.11r (spec)](2026-06-08-80211r-fast-bss-transition.md) and the
 [FT packet walkthrough](80211r-ft-packet-walkthrough.md).
 
 | | EAP skipped | 4-way handshake skipped | PMK reuse scope | Standard |

@@ -83,6 +83,6 @@ updated: 2026-07-08
 - [Glossary](glossary.md)
 - [Home WiFi Roaming Scenario (2-AP testbed)](home-wifi-roaming-scenario.md)
 - [WiFi Roaming — Overview & Fast-Roaming Methods](wifi-roaming-overview.md)
-- [802.11r](80211r-fast-bss-transition.md) · [802.11k](80211k-radio-resource-measurement.md) · [802.11v](80211v-wireless-network-management.md)
+- [802.11r](2026-06-08-80211r-fast-bss-transition.md) · [802.11k](2026-06-08-80211k-radio-resource-measurement.md) · [802.11v](2026-06-08-80211v-wireless-network-management.md)
 - [Fast Roaming via Key Caching](wifi-roaming-key-caching.md)
 - [Common WiFi Roaming Issues](2026-06-08-wifi-roaming-common-issues.md)

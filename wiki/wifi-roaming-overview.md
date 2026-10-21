@@ -67,9 +67,9 @@ gap:
 | **PMK Caching (SKC / "sticky")** | 802.11-2007 | Skips 802.1X on *return* to a known AP | [Key caching](wifi-roaming-key-caching.md) |
 | **OKC** (Opportunistic Key Caching) | Vendor (de-facto) | Skips 802.1X across all APs sharing a cached PMK | [Key caching](wifi-roaming-key-caching.md) |
 | **CCKM** (Cisco) | Proprietary (needs CCX) | Skips 802.1X *and* 4-way handshake | [Key caching](wifi-roaming-key-caching.md) |
-| **802.11r FT** | 802.11r-2008 | Pre-computes the PTK before the roam; one round trip | [FT (spec)](80211r-fast-bss-transition.md) · [FT in practice](80211r-ft-packet-walkthrough.md) |
-| **802.11k** | assist | Neighbor Report → smarter, faster target selection | [802.11k](80211k-radio-resource-measurement.md) |
-| **802.11v** | assist | BTM → network can *steer* the client to a better AP | [802.11v](80211v-wireless-network-management.md) |
+| **802.11r FT** | 802.11r-2008 | Pre-computes the PTK before the roam; one round trip | [FT (spec)](2026-06-08-80211r-fast-bss-transition.md) · [FT in practice](80211r-ft-packet-walkthrough.md) |
+| **802.11k** | assist | Neighbor Report → smarter, faster target selection | [802.11k](2026-06-08-80211k-radio-resource-measurement.md) |
+| **802.11v** | assist | BTM → network can *steer* the client to a better AP | [802.11v](2026-06-08-80211v-wireless-network-management.md) |
 
 Key caching and CCKM cut the **authentication** cost; 802.11r additionally pre-stages the
 **keying**; 802.11k/v don't change the handshake at all — they improve *which* AP the
@@ -81,11 +81,11 @@ The source course frames the same material as a module (`wifi-roaming-analysis.j
 
 - **L4.0** Roaming Overview — *this page*
 - **L4.1** Key Caching — [Key caching](wifi-roaming-key-caching.md)
-- **L4.2** Fast BSS Transition — Intro — [802.11r (spec)](80211r-fast-bss-transition.md)
+- **L4.2** Fast BSS Transition — Intro — [802.11r (spec)](2026-06-08-80211r-fast-bss-transition.md)
 - **L4.3** FT over-the-Air — [FT packet walkthrough §3](80211r-ft-packet-walkthrough.md)
 - **L4.4** FT over-the-DS — [FT packet walkthrough §4](80211r-ft-packet-walkthrough.md)
-- **L4.5** Roaming with 802.11k — [802.11k](80211k-radio-resource-measurement.md)
-- **L4.6** Roaming with 802.11v — [802.11v](80211v-wireless-network-management.md)
+- **L4.5** Roaming with 802.11k — [802.11k](2026-06-08-80211k-radio-resource-measurement.md)
+- **L4.6** Roaming with 802.11v — [802.11v](2026-06-08-80211v-wireless-network-management.md)
 
 The blog's own breakdown adds *FT Information Elements*, *FT Compatibility Issues*, *Cisco
 Adaptive 11r*, and *WiFi Agile Multiband* as deployment topics — relevant pointers for

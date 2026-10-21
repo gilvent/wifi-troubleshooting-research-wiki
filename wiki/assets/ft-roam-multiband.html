@@ -1,0 +1,776 @@
+<title>Multi-Band 802.11r Roam Walkthrough</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #eef1f7;
+    --surface: #ffffff;
+    --surface-2: #f6f8fc;
+    --ink: #101a2b;
+    --muted: #5c6b85;
+    --faint: #8a97ad;
+    --line: #d9e0ec;
+    --line-strong: #c2ccdd;
+
+    --client: #2563eb;
+    --ap1: #0891b2;
+    --ap2: #7c3aed;
+    --radius: #d97706;
+    --key: #059669;
+    --backplane: #94739e;
+
+    --client-soft: #dbe7ff;
+    --ap1-soft: #cdeef4;
+    --ap2-soft: #e7dcfb;
+    --radius-soft: #fbeacb;
+
+    --shadow: 0 1px 2px rgba(16,26,43,.06), 0 8px 28px rgba(16,26,43,.07);
+    --radius-lg: 14px;
+    --radius-md: 9px;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --bg: #0a1120;
+      --surface: #111a2c;
+      --surface-2: #0e1626;
+      --ink: #e8eef9;
+      --muted: #9aa9c4;
+      --faint: #6b7a96;
+      --line: #21304a;
+      --line-strong: #2c3e5c;
+
+      --client: #5b9bff;
+      --ap1: #2dd4e8;
+      --ap2: #a888ff;
+      --radius: #f9b74e;
+      --key: #34d399;
+      --backplane: #b596c4;
+
+      --client-soft: #16264a;
+      --ap1-soft: #093442;
+      --ap2-soft: #241a45;
+      --radius-soft: #3a2c12;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a1120;
+    --surface: #111a2c;
+    --surface-2: #0e1626;
+    --ink: #e8eef9;
+    --muted: #9aa9c4;
+    --faint: #6b7a96;
+    --line: #21304a;
+    --line-strong: #2c3e5c;
+
+    --client: #5b9bff;
+    --ap1: #2dd4e8;
+    --ap2: #a888ff;
+    --radius: #f9b74e;
+    --key: #34d399;
+    --backplane: #b596c4;
+
+    --client-soft: #16264a;
+    --ap1-soft: #093442;
+    --ap2-soft: #241a45;
+    --radius-soft: #3a2c12;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.4);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 28px 56px;
+  }
+
+  header.page { margin-bottom: 22px; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ap2);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  h1 {
+    font-size: clamp(26px, 4.2vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    margin: 0 0 10px;
+    text-wrap: balance;
+    font-weight: 700;
+  }
+  .lede {
+    margin: 0;
+    max-width: 64ch;
+    color: var(--muted);
+    font-size: 15.5px;
+  }
+
+  /* ---- tabs ---- */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0 18px;
+  }
+  .tab {
+    appearance: none;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--muted);
+    padding: 9px 15px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .tab:hover { border-color: var(--ap2); color: var(--ink); }
+  .tab .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+  }
+  .tab[aria-selected="true"] {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .tab[aria-selected="true"] .num { color: var(--bg); opacity: .7; }
+
+  .scenario-note {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ap2);
+    border-radius: var(--radius-md);
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .scenario-note b { color: var(--ink); font-weight: 600; }
+
+  /* ---- main grid ---- */
+  .stage {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .stage { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .diagram-card { padding: 8px 8px 14px; overflow: hidden; }
+  .diagram-scroll { overflow-x: auto; }
+  svg.seq { display: block; width: 100%; height: auto; min-width: 460px; }
+
+  svg text { font-family: 'IBM Plex Sans', sans-serif; }
+  .lane-label { font-weight: 600; font-size: 13px; }
+  .lane-sub { font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; letter-spacing: .03em; }
+  .lane-band { font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600; }
+  .msg-label { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; font-weight: 500; }
+  .note-label { font-family: 'IBM Plex Sans'; font-size: 11.5px; font-style: italic; }
+  .hit { cursor: pointer; }
+
+  /* ---- controls ---- */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .ctrl {
+    appearance: none;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+    width: 40px; height: 40px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: border-color .15s, background .15s;
+  }
+  .ctrl:hover { border-color: var(--ap2); }
+  .ctrl:disabled { opacity: .38; cursor: default; }
+  .ctrl.play { width: auto; padding: 0 16px; gap: 8px; font-family: inherit; font-weight: 600; font-size: 13.5px; }
+  .ctrl svg { width: 16px; height: 16px; fill: currentColor; }
+  .stepcount {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  .stepcount b { color: var(--ink); }
+
+  /* ---- detail panel ---- */
+  .detail { padding: 18px 18px 20px; position: sticky; top: 14px; }
+  @media (max-width: 860px) { .detail { position: static; } }
+
+  .detail-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .step-idx {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--faint);
+    font-weight: 600;
+  }
+  .spec-ref {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .frame-name { font-size: 20px; font-weight: 700; letter-spacing: -.01em; margin: 2px 0 12px; text-wrap: balance; }
+
+  .flow {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12.5px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .party-chip {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600; font-size: 11.5px;
+    padding: 3px 9px; border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .arrow-ico { color: var(--faint); font-weight: 700; }
+  .arrow-ico.bidir::before { content: "⇄"; }
+  .arrow-ico.mono::before { content: "→"; }
+
+  /* ---- client radio band state ---- */
+  .radio-state {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px; font-weight: 500;
+    padding: 7px 11px; border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .radio-state .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: currentColor; }
+  .radio-state .rlab { color: var(--faint); text-transform: uppercase; letter-spacing: .08em; font-size: 9.5px; }
+  .radio-state.serving { color: var(--ap1); border-color: color-mix(in srgb, var(--ap1) 40%, var(--line)); }
+  .radio-state.settled { color: var(--ap2); border-color: color-mix(in srgb, var(--ap2) 40%, var(--line)); }
+  .radio-state.off {
+    color: var(--radius);
+    border-color: color-mix(in srgb, var(--radius) 55%, var(--line));
+    background: color-mix(in srgb, var(--radius) 10%, var(--surface-2));
+  }
+
+  .fields-title, .prose-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--faint); margin: 0 0 8px;
+  }
+  .fields { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .field {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: var(--ink);
+  }
+  .field.key { border-color: color-mix(in srgb, var(--key) 45%, var(--line)); background: color-mix(in srgb, var(--key) 12%, var(--surface-2)); color: var(--key); font-weight: 600; }
+  .field.band { border-color: color-mix(in srgb, var(--ap2) 45%, var(--line)); background: color-mix(in srgb, var(--ap2) 12%, var(--surface-2)); color: var(--ap2); font-weight: 600; }
+  .field.none { color: var(--faint); font-style: italic; background: transparent; }
+
+  .prose { font-size: 14px; color: var(--ink); margin: 0 0 18px; }
+  .prose.warn {
+    border-left: 3px solid var(--radius);
+    padding-left: 11px;
+    color: var(--muted);
+  }
+
+  /* ---- ledger ---- */
+  .ledger { border-top: 1px solid var(--line); padding-top: 15px; }
+  .ledger-cap { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .ledger-scroll { overflow-x: auto; }
+  table.keys { width: 100%; border-collapse: collapse; font-size: 11.5px; min-width: 340px; }
+  table.keys th, table.keys td { padding: 7px 3px; text-align: center; }
+  table.keys thead th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    border-bottom: 1px solid var(--line);
+  }
+  table.keys tbody th {
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px; font-weight: 600;
+    white-space: nowrap;
+  }
+  table.keys tbody th .role { display: block; font-size: 9.5px; color: var(--faint); font-weight: 500; }
+  .cell { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; }
+  .cell.held { background: color-mix(in srgb, var(--key) 20%, transparent); color: var(--key); font-weight: 700; }
+  .cell.held::before { content: "✓"; }
+  .cell.empty { color: var(--faint); }
+  .cell.empty::before { content: "·"; font-size: 18px; line-height: 0; }
+
+  /* ---- legend ---- */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px 22px;
+    margin-top: 22px; padding: 15px 18px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    font-size: 12.5px; color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch { width: 26px; height: 3px; border-radius: 2px; flex: none; }
+  .swatch.dot { width: 11px; height: 11px; border-radius: 50%; }
+  .swatch.dash { height: 0; border-top: 2.5px dashed var(--faint); }
+  .legend b { color: var(--ink); font-weight: 600; }
+
+  .foot {
+    margin-top: 26px; font-size: 12.5px; color: var(--faint);
+    max-width: 74ch;
+  }
+  .foot code { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted); }
+
+  @keyframes flow-dash { to { stroke-dashoffset: -22; } }
+  .pulse { stroke-dasharray: 5 6; animation: flow-dash 1s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header class="page">
+    <p class="eyebrow">IEEE 802.11r · Cross-Band Fast BSS Transition</p>
+    <h1>How a cross-band fast roam talks</h1>
+    <p class="lede">The client roams from a 5 GHz BSS to a 6 GHz BSS in the same mobility domain. The frames are the ordinary FT exchange — band is not a protocol parameter — but watch two things: the key hierarchy holds a <b>separate PMK-R1 per band's R1KH</b>, and the client's radio has to <b>leave its serving band</b> at a different moment for over-the-air than for over-the-DS.</p>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist" aria-label="Scenario"></div>
+  <div class="scenario-note" id="scenarioNote"></div>
+
+  <div class="stage">
+    <div class="panel diagram-card">
+      <div class="diagram-scroll">
+        <svg class="seq" id="seq" role="img" aria-label="Message sequence diagram"></svg>
+      </div>
+      <div class="controls">
+        <button class="ctrl" id="prev" aria-label="Previous step">
+          <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7z"/></svg>
+        </button>
+        <button class="ctrl play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="playIco"><path d="M7 5v14l11-7z"/></svg><span id="playTxt">Play</span></button>
+        <button class="ctrl" id="next" aria-label="Next step">
+          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7z"/></svg>
+        </button>
+        <span class="stepcount" id="stepcount"></span>
+      </div>
+    </div>
+
+    <div class="panel detail">
+      <div class="detail-head">
+        <span class="step-idx" id="stepIdx"></span>
+        <span class="spec-ref" id="specRef"></span>
+      </div>
+      <h2 class="frame-name" id="frameName"></h2>
+      <div class="flow" id="flow"></div>
+      <div class="radio-state" id="radioState"></div>
+
+      <p class="fields-title">Carries</p>
+      <div class="fields" id="fields"></div>
+
+      <p class="prose" id="prose"></p>
+
+      <div class="ledger">
+        <p class="ledger-cap">Key hierarchy held after this step — note the per-band PMK-R1</p>
+        <div class="ledger-scroll">
+          <table class="keys">
+            <thead>
+              <tr><th style="text-align:left">Party</th><th>PMK-R0</th><th>PMK-R1·5G</th><th>PMK-R1·6G</th><th>PTK</th><th>GTK</th></tr>
+            </thead>
+            <tbody id="ledgerBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item"><span class="swatch" style="background:var(--client)"></span><b>Client</b> (S0KH/S1KH)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--ap1)"></span><b>AP-1</b> · R0KH · 5 GHz (current)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--ap2)"></span><b>AP-2</b> · R1KH · 6 GHz (target)</span>
+    <span class="legend-item"><span class="swatch" style="background:var(--radius)"></span><b>RADIUS</b> (setup only)</span>
+    <span class="legend-item"><span class="swatch dot" style="background:var(--radius)"></span><b>off serving band</b> — radio tuned away, not yet reassociated</span>
+    <span class="legend-item"><span class="swatch dash"></span>advertisement / backplane</span>
+  </div>
+
+  <p class="foot">Grounded in the wiki's <b>802.11r — Fast BSS Transition</b> page, §9 <i>Multi-band (cross-band) roaming</i>, and the FT packet walkthrough. The two APs may equally be two radios of one physical AP; what matters is they share the <code>MDID</code> and each band's radio is its own R1KH holding its own PMK-R1 off the single PMK-R0. The <code>OCI</code> subelement (Operating Channel Validation) authenticates <i>which</i> band/channel the roam landed on. Backplane hops (fetching the target band's PMK-R1 from the R0KH) are the transport the standard leaves <code>out of scope</code> — the classic <code>R0KH_UNREACHABLE</code> failure. Field lists are representative, not byte-exact.</p>
+</div>
+
+<script>
+const LANES = [
+  { id: 'client', label: 'Client', sub: 'S0KH/S1KH', band: '',        color: 'var(--client)', soft: 'var(--client-soft)' },
+  { id: 'ap1',    label: 'AP-1',   sub: 'R0KH',      band: '5 GHz',    color: 'var(--ap1)',    soft: 'var(--ap1-soft)' },
+  { id: 'ap2',    label: 'AP-2',   sub: 'R1KH',      band: '6 GHz',    color: 'var(--ap2)',    soft: 'var(--ap2-soft)' },
+  { id: 'radius', label: 'RADIUS', sub: 'AS',        band: '',         color: 'var(--radius)', soft: 'var(--radius-soft)' },
+];
+const LX = { client: 100, ap1: 307, ap2: 513, radius: 720 };
+const W = 820;
+
+// key ids: PMK-R0, PMK-R1-5G, PMK-R1-6G, PTK, GTK ; grants: [party, key]
+// radio: {band, ch, state} where state ∈ serving | off | settled — carried forward until changed
+const SCENARIOS = {
+  setup: {
+    tab: 'Key setup (5 GHz)',
+    note: '<b>Done once</b>, on whichever band the client first joins. Full 802.1X/EAP builds the PMK-R0 hierarchy. The R0KH derives <b>one PMK-R1 for each R1KH</b> in the domain — including the 6 GHz radio the client hasn\'t touched yet.',
+    pre: {},
+    radio0: { band: '5 GHz', ch: 'ch44', state: 'serving' },
+    steps: [
+      { from:'ap1', to:'client', label:'Beacon / Probe Resp', style:'dash', ref:'§4',
+        name:'Beacon / Probe Response (5 GHz)', fields:['MDE (MDID, FT policy)','RSNE','Op Class + Channel (5 GHz ch44)'],
+        prose:'AP-1 advertises FT support and its mobility domain on the 5 GHz radio. The same MDID is advertised by every band in the domain.' },
+      { from:'client', to:'ap1', label:'Association Request', ref:'§6.1',
+        name:'Association Request', fields:['MDE','RSNE (AKM = FT-802.1X)','RSNXE'],
+        prose:'The client joins and selects an FT AKM, committing to the FT key hierarchy.' },
+      { from:'ap1', to:'client', label:'Association Response', ref:'§6.1',
+        name:'Association Response', fields:['MDE','FTE (R0KH-ID, R1KH-ID·5G)','RSNXE'],
+        prose:'AP-1 names the key holders. Its R0KH-ID is AP-1\'s NAS-Identifier; the R1KH-ID here is the 5 GHz radio.' },
+      { from:'ap1', to:'radius', label:'RADIUS Access-Request', ref:'§6.1',
+        name:'RADIUS Access-Request', fields:['EAP over RADIUS','NAS-Identifier'],
+        prose:'AP-1 relays the 802.1X/EAP conversation to the authentication server (possibly several round trips).' },
+      { from:'radius', to:'ap1', label:'Access-Accept + MSK', ref:'§13.2',
+        name:'RADIUS Access-Accept', fields:['MSK'],
+        grants:[['ap1','PMK-R0'],['client','PMK-R0'],['ap1','PMK-R1-5G'],['client','PMK-R1-5G']],
+        prose:'The server returns the MSK. The client and the R0KH derive PMK-R0, then the PMK-R1 for the current 5 GHz R1KH. The R0KH can now derive a PMK-R1 for any other R1KH (e.g. 6 GHz) on demand.' },
+      { from:'client', to:'ap1', label:'FT 4-Way Handshake', bidir:true, ref:'§6.1',
+        name:'FT 4-Way Handshake (EAPOL-Key ×4)', fields:['ANonce','SNonce','MIC','GTK'],
+        grants:[['client','PTK'],['ap1','PTK'],['client','GTK'],['ap1','GTK']],
+        prose:'The handshake confirms PMK-R1·5G, derives the PTK for the 5 GHz link, and installs the group key.' },
+      { from:'ap1', to:'client', label:'Data frames (5 GHz)', bidir:true, style:'dash', ref:'§6.1',
+        name:'Associated on 5 GHz', fields:['Encrypted 802.11 data'],
+        prose:'The client is serving on 5 GHz. Every later roam — to any band in this domain — reuses this hierarchy instead of re-running EAP.' },
+    ]
+  },
+
+  ota: {
+    tab: 'Cross-band roam · over-the-air',
+    note: '<b>5 GHz → 6 GHz, over-the-air.</b> The client talks <b>directly</b> to the 6 GHz target, so it must <b>tune off its serving 5 GHz band</b> before the first authentication frame. RADIUS is never contacted.',
+    pre: { client:['PMK-R0','PMK-R1-5G'], ap1:['PMK-R0','PMK-R1-5G'] },
+    radio0: { band: '5 GHz', ch: 'ch44', state: 'serving' },
+    steps: [
+      { from:'ap1', to:'client', label:'Neighbor Report (k)', style:'dash', ref:'k · 9.4.2.35',
+        name:'802.11k Neighbor Report', fields:['AP-2 BSSID','Op Class + Channel (6 GHz ch37)','BSSID Info: Mobility Domain = 1'],
+        prose:'While still on 5 GHz, the client learns of a same-domain neighbor on another band. The Operating Class + Channel Number tell it the target lives on 6 GHz; the Mobility Domain bit confirms it is FT-capable here.' },
+      { note:true, label:'Client tunes radio → 6 GHz ch37 (off serving band)', ref:'§9',
+        name:'Radio tunes to the target band', fields:['(no frame — physical channel change)'],
+        radio:{ band:'6 GHz', ch:'ch37', state:'off' },
+        prose:'A radio is on one channel at a time. To authenticate directly with the 6 GHz target the client must leave its 5 GHz serving channel now — an off-band excursion before it is reassociated anywhere.' },
+      { from:'client', to:'ap2', label:'Auth Request (FT)', ref:'§6.2',
+        name:'802.11 Authentication — FT algorithm (6 GHz)', fields:['FTAA','RSNE (PMKR0Name)','MDE','FTE (SNonce, R0KH-ID)'],
+        prose:'On the 6 GHz channel, the client starts FT authentication straight with the target, naming which PMK-R0 to use and picking its SNonce.' },
+      { from:'ap2', to:'ap1', label:'PMK-R1 Pull Request', style:'back', ref:'§13.2',
+        name:'PMK-R1 pull request (backplane)', fields:['RRB','R0KH-ID','PMKR1Name (6G)'],
+        prose:'The 6 GHz radio\'s R1KH does not hold a key for this client, so it asks the R0KH over the vendor backplane — the transport the standard leaves out of scope.' },
+      { from:'ap1', to:'ap2', label:'PMK-R1 Response', style:'back', ref:'§13.2',
+        name:'PMK-R1 response (backplane)', fields:['AES-key-wrapped PMK-R1 (6G)'],
+        grants:[['ap2','PMK-R1-6G']],
+        prose:'The R0KH derives the 6 GHz radio\'s own PMK-R1 and returns it wrapped. If this hop fails, the roam is rejected with R0KH_UNREACHABLE.' },
+      { from:'ap2', to:'client', label:'Auth Response (FT)', ref:'§6.2 · OCI',
+        name:'802.11 Authentication — FT response (6 GHz)', fields:['MDE (FT-over-DS = 0)','FTE (ANonce, SNonce, R1KH-ID·6G, R0KH-ID)','OCI (6 GHz op class/channel)'],
+        grants:[['client','PMK-R1-6G'],['client','PTK'],['ap2','PTK']],
+        prose:'AP-2 supplies its ANonce and R1KH-ID; the client derives PMK-R1·6G and both sides derive the PTK. The OCI binds the 6 GHz operating class/channel so a spoofed-band MITM is detectable.' },
+      { from:'client', to:'ap2', label:'Reassociation Request', ref:'§6.5',
+        name:'Reassociation Request (6 GHz)', fields:['RSNE','MDE','FTE (MIC, ANonce, SNonce, R1KH-ID·6G, R0KH-ID)','OCI'],
+        prose:'The MIC proves the client already holds the correct PTK — no separate 4-way handshake. The OCI lets the target run Operating Channel Validation.' },
+      { from:'ap2', to:'client', label:'Reassociation Response', ref:'§6.2',
+        name:'Reassociation Response (6 GHz)', fields:['FTE (MIC, GTK, IGTK)','OCI'],
+        grants:[['client','GTK'],['ap2','GTK']],
+        radio:{ band:'6 GHz', ch:'ch37', state:'settled' },
+        prose:'Group keys delivered, controlled port opens. The client is now settled on the 6 GHz band; OCV has confirmed it landed on the channel it was told.' },
+      { from:'ap2', to:'client', label:'Data frames (6 GHz)', bidir:true, style:'dash', ref:'§6.2',
+        name:'Roam complete — on 6 GHz', fields:['Encrypted 802.11 data'],
+        prose:'The client has left 5 GHz entirely and runs on 6 GHz — no EAP, no RADIUS, no 4-way handshake. Four frames over the air, just on a different band than it started.' },
+    ]
+  },
+
+  ds: {
+    tab: 'Cross-band roam · over-the-DS',
+    note: '<b>5 GHz → 6 GHz, over-the-DS.</b> The FT authentication rides through the <b>current 5 GHz AP</b> as Action frames, so the client <b>stays on its serving band</b> until the keys are ready — it only tunes to 6 GHz for the final reassociation. Requires FT-over-DS (MDE bit B0 = 1).',
+    pre: { client:['PMK-R0','PMK-R1-5G'], ap1:['PMK-R0','PMK-R1-5G'] },
+    radio0: { band: '5 GHz', ch: 'ch44', state: 'serving' },
+    steps: [
+      { from:'ap1', to:'client', label:'Neighbor Report (k)', style:'dash', ref:'k · 9.4.2.35',
+        name:'802.11k Neighbor Report', fields:['AP-2 BSSID','Op Class + Channel (6 GHz ch37)','BSSID Info: Mobility Domain = 1'],
+        prose:'Same discovery: the client learns of the 6 GHz target while serving on 5 GHz. Here it will negotiate without leaving that channel.' },
+      { from:'client', to:'ap1', label:'FT Request (Action)', ref:'§6.3',
+        name:'FT Request — Action frame (on 5 GHz)', fields:['FT Action','Target = AP-2 BSSID (6 GHz)','FTE (SNonce, R0KH-ID)'],
+        prose:'Still associated on 5 GHz, the client names the 6 GHz target it wants — sent to the current AP, not the target.' },
+      { from:'ap1', to:'ap2', label:'Relay + PMK-R1 (RRB)', style:'back', ref:'§13.10',
+        name:'Remote request relay (backplane)', fields:['MLME-REMOTE-REQUEST','PMK-R1 (6G)'],
+        grants:[['ap2','PMK-R1-6G']],
+        prose:'AP-1 (the R0KH) relays over the DS and hands the 6 GHz radio its own PMK-R1 in the same step.' },
+      { from:'ap2', to:'ap1', label:'FT Response (RRB)', style:'back', ref:'§13.10',
+        name:'FT Response over the backplane', fields:['FTE (ANonce, R1KH-ID·6G)'],
+        prose:'The 6 GHz target returns its ANonce back through the current AP.' },
+      { from:'ap1', to:'client', label:'FT Response (Action)', ref:'§6.3',
+        name:'FT Response — Action frame (on 5 GHz)', fields:['FTE (ANonce, SNonce, R1KH-ID·6G, R0KH-ID)'],
+        grants:[['client','PMK-R1-6G'],['client','PTK'],['ap2','PTK']],
+        prose:'The client receives the ANonce while still on 5 GHz, derives PMK-R1·6G, and computes the PTK — all before it ever changes band.' },
+      { note:true, label:'Client switches radio → 6 GHz ch37', ref:'§13.5.3',
+        name:'Client moves to the target band', fields:['(no frame — physical channel change)'],
+        radio:{ band:'6 GHz', ch:'ch37', state:'settled' },
+        prose:'Only now does the client leave 5 GHz. Because authentication already finished on the serving band, the off-band gap is just the reassociation — not the whole key exchange.' },
+      { from:'client', to:'ap2', label:'Reassociation Request', ref:'§6.5',
+        name:'Reassociation Request (6 GHz)', fields:['RSNE','MDE','FTE (MIC, ANonce, SNonce, R1KH-ID·6G, R0KH-ID)','OCI'],
+        prose:'Now on 6 GHz, the client presents its MIC — proof it already holds the PTK.' },
+      { from:'ap2', to:'client', label:'Reassociation Response', ref:'§6.3',
+        name:'Reassociation Response (6 GHz)', fields:['FTE (MIC, GTK, IGTK)','OCI'],
+        grants:[['client','GTK'],['ap2','GTK']],
+        prose:'Group keys delivered, port opens. The auth round finished before the move, so the on-air / off-band gap is minimal.' },
+    ]
+  }
+};
+
+const KEYCOLS = ['PMK-R0','PMK-R1-5G','PMK-R1-6G','PTK','GTK'];
+const LEDGER_ROWS = [
+  { id:'client', label:'Client', role:'S0KH/S1KH' },
+  { id:'ap1', label:'AP-1', role:'R0KH · 5 GHz' },
+  { id:'ap2', label:'AP-2', role:'R1KH · 6 GHz' },
+];
+
+let current = 'setup';
+let step = 0;
+let playing = false;
+let timer = null;
+
+const scroll = document.querySelector('.diagram-scroll');
+
+function usedLanes(sc) {
+  const set = new Set();
+  sc.steps.forEach(s => { if (!s.note) { set.add(s.from); set.add(s.to); } });
+  return set;
+}
+
+function ledgerAt(sc, uptoStep) {
+  const held = {};
+  LEDGER_ROWS.forEach(r => held[r.id] = new Set(sc.pre[r.id] || []));
+  for (let i = 0; i <= uptoStep; i++) {
+    (sc.steps[i].grants || []).forEach(([party, key]) => held[party] && held[party].add(key));
+  }
+  return held;
+}
+
+function radioAt(sc, uptoStep) {
+  let r = sc.radio0;
+  for (let i = 0; i <= uptoStep; i++) {
+    if (sc.steps[i].radio) r = sc.steps[i].radio;
+  }
+  return r;
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function drawDiagram() {
+  const sc = SCENARIOS[current];
+  const steps = sc.steps;
+  const used = usedLanes(sc);
+  const firstY = 100, dy = 66;
+  const height = firstY + steps.length * dy + 18;
+
+  let s = `<svg class="seq" viewBox="0 0 ${W} ${height}" width="${W}" height="${height}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Message sequence diagram" style="width:100%;height:auto">`;
+  let hits = '';
+
+  // lifelines + headers
+  LANES.forEach(l => {
+    const x = LX[l.id];
+    const active = used.has(l.id);
+    const op = active ? 1 : 0.28;
+    s += `<line x1="${x}" y1="74" x2="${x}" y2="${height-8}" stroke="var(--line-strong)" stroke-width="1.4" stroke-dasharray="3 5" opacity="${op}"/>`;
+    s += `<g opacity="${op}">`;
+    s += `<rect x="${x-58}" y="26" width="116" height="42" rx="8" fill="${l.soft}" stroke="${l.color}" stroke-width="1.4"/>`;
+    s += `<text class="lane-label" x="${x}" y="42" text-anchor="middle" fill="var(--ink)">${l.label}</text>`;
+    s += `<text class="lane-sub" x="${x}" y="53" text-anchor="middle" fill="${l.color}">${l.sub}</text>`;
+    if (l.band) s += `<text class="lane-band" x="${x}" y="63" text-anchor="middle" fill="${l.color}">${l.band}</text>`;
+    s += `</g>`;
+    if (!active) {
+      s += `<text class="lane-sub" x="${x}" y="${height-2}" text-anchor="middle" fill="var(--faint)" opacity="0.7">not contacted</text>`;
+    }
+  });
+
+  steps.forEach((st, i) => {
+    const y = firstY + i * dy;
+    const isActive = i === step;
+    hits += `<rect class="hit" x="0" y="${y-dy/2}" width="${W}" height="${dy}" fill="transparent" data-step="${i}"/>`;
+
+    if (st.note) {
+      const op = isActive ? 1 : 0.4;
+      s += `<line x1="80" y1="${y}" x2="${W-80}" y2="${y}" stroke="var(--faint)" stroke-width="1" stroke-dasharray="2 4" opacity="${op}"/>`;
+      s += `<rect x="${W/2-160}" y="${y-13}" width="320" height="26" rx="13" fill="var(--surface-2)" stroke="var(--line)" opacity="${op}"/>`;
+      s += `<text class="note-label" x="${W/2}" y="${y+4}" text-anchor="middle" fill="var(--muted)" opacity="${op}">${esc(st.label)}</text>`;
+      return;
+    }
+
+    const x1 = LX[st.from], x2 = LX[st.to];
+    const dir = x2 > x1 ? 1 : -1;
+    const lane = LANES.find(l => l.id === st.from);
+    let color = lane.color;
+    if (st.style === 'back') color = 'var(--backplane)';
+    const op = isActive ? 1 : 0.34;
+    const wdt = isActive ? 3 : 1.7;
+    const dash = (st.style === 'dash') ? ' stroke-dasharray="6 5"' : (st.style === 'back' ? ' stroke-dasharray="7 5"' : '');
+
+    const midX = (x1 + x2) / 2;
+    s += `<text class="msg-label" x="${midX}" y="${y-9}" text-anchor="middle" fill="${isActive?'var(--ink)':'var(--muted)'}" opacity="${isActive?1:0.7}">${esc(st.label)}</text>`;
+
+    const headOff = 9;
+    const lineEnd = x2 - dir * headOff;
+    s += `<line x1="${x1}" y1="${y}" x2="${lineEnd}" y2="${y}" stroke="${color}" stroke-width="${wdt}"${dash} opacity="${op}"/>`;
+    s += arrowhead(x2, y, dir, color, op);
+    if (st.bidir) {
+      const lineStart = x1 + dir * headOff;
+      s += `<line x1="${x1}" y1="${y}" x2="${lineStart}" y2="${y}" stroke="${color}" stroke-width="0"/>`;
+      s += arrowhead(x1, y, -dir, color, op);
+    }
+    if (isActive) {
+      s += `<line class="pulse" x1="${x1}" y1="${y}" x2="${lineEnd}" y2="${y}" stroke="${color}" stroke-width="${wdt}" opacity="0.9"/>`;
+    }
+  });
+
+  s += hits;
+  s += `</svg>`;
+  scroll.innerHTML = s;
+  scroll.querySelectorAll('.hit').forEach(h => {
+    h.addEventListener('click', () => { stop(); step = +h.dataset.step; render(); });
+  });
+}
+
+function arrowhead(x, y, dir, color, op) {
+  const b = x - dir * 9;
+  return `<path d="M ${x} ${y} L ${b} ${y-4.5} L ${b} ${y+4.5} Z" fill="${color}" opacity="${op}"/>`;
+}
+
+function render() {
+  const sc = SCENARIOS[current];
+  const st = sc.steps[step];
+
+  drawDiagram();
+
+  document.getElementById('prev').disabled = step === 0;
+  document.getElementById('next').disabled = step === sc.steps.length - 1;
+  document.getElementById('stepcount').innerHTML = `<b>${step+1}</b> / ${sc.steps.length}`;
+
+  document.getElementById('stepIdx').textContent = `STEP ${String(step+1).padStart(2,'0')}`;
+  document.getElementById('specRef').textContent = st.ref || '';
+  document.getElementById('frameName').textContent = st.name;
+
+  // flow
+  const flow = document.getElementById('flow');
+  if (st.note) {
+    flow.innerHTML = `<span class="party-chip" style="color:var(--muted);border-color:var(--line)">physical move</span>`;
+  } else {
+    const f = LANES.find(l=>l.id===st.from), t = LANES.find(l=>l.id===st.to);
+    const chip = (l) => `<span class="party-chip" style="color:${l.color};background:${l.soft};border-color:${l.color}">${l.label}</span>`;
+    const ico = st.bidir ? '<span class="arrow-ico bidir"></span>' : '<span class="arrow-ico mono"></span>';
+    flow.innerHTML = chip(f) + ico + chip(t);
+  }
+
+  // client radio band state
+  const r = radioAt(sc, step);
+  const rs = document.getElementById('radioState');
+  const stateWord = r.state === 'off' ? 'off serving band' : (r.state === 'settled' ? 'settled' : 'serving');
+  rs.className = 'radio-state ' + r.state;
+  rs.innerHTML = `<span class="dot"></span><span class="rlab">Client radio</span> ${esc(r.band)} ${esc(r.ch)} · ${stateWord}`;
+
+  // fields
+  const fields = document.getElementById('fields');
+  fields.innerHTML = (st.fields || []).map(f => {
+    const isKey = /MSK|PMK|PTK|GTK|IGTK/.test(f) && !/PMKR0Name|PMKR1Name/.test(f);
+    const isBand = !isKey && /GHz|Op Class|Channel|OCI/.test(f);
+    const cls = isKey ? ' key' : (isBand ? ' band' : '');
+    return `<span class="field${cls}">${esc(f)}</span>`;
+  }).join('') || '<span class="field none">—</span>';
+
+  // prose
+  const prose = document.getElementById('prose');
+  prose.textContent = st.prose;
+  prose.className = 'prose' + (/R0KH_UNREACHABLE|out of scope|backplane/.test(st.prose) ? ' warn' : '');
+
+  // ledger
+  const held = ledgerAt(sc, step);
+  document.getElementById('ledgerBody').innerHTML = LEDGER_ROWS.map(row => {
+    const cells = KEYCOLS.map(k => {
+      const on = held[row.id].has(k);
+      return `<td><span class="cell ${on?'held':'empty'}"></span></td>`;
+    }).join('');
+    return `<tr><th>${row.label}<span class="role">${row.role}</span></th>${cells}</tr>`;
+  }).join('');
+}
+
+function buildTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = Object.entries(SCENARIOS).map(([k, sc], i) =>
+    `<button class="tab" role="tab" data-k="${k}" aria-selected="${k===current}"><span class="num">${String(i+1).padStart(2,'0')}</span>${sc.tab}</button>`
+  ).join('');
+  tabs.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      stop();
+      current = t.dataset.k; step = 0;
+      tabs.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x.dataset.k === current));
+      document.getElementById('scenarioNote').innerHTML = SCENARIOS[current].note;
+      render();
+    });
+  });
+}
+
+function stop() {
+  playing = false;
+  if (timer) { clearInterval(timer); timer = null; }
+  document.getElementById('playIco').innerHTML = '<path d="M7 5v14l11-7z"/>';
+  document.getElementById('playTxt').textContent = 'Play';
+}
+function play() {
+  const sc = SCENARIOS[current];
+  if (step >= sc.steps.length - 1) step = -1;
+  playing = true;
+  document.getElementById('playIco').innerHTML = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+  document.getElementById('playTxt').textContent = 'Pause';
+  timer = setInterval(() => {
+    if (step >= SCENARIOS[current].steps.length - 1) { stop(); return; }
+    step++; render();
+  }, 1700);
+}
+
+document.getElementById('prev').addEventListener('click', () => { stop(); if (step>0){step--; render();} });
+document.getElementById('next').addEventListener('click', () => { stop(); if (step<SCENARIOS[current].steps.length-1){step++; render();} });
+document.getElementById('play').addEventListener('click', () => { playing ? stop() : play(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') { stop(); if (step>0){step--; render();} }
+  else if (e.key === 'ArrowRight') { stop(); if (step<SCENARIOS[current].steps.length-1){step++; render();} }
+});
+
+buildTabs();
+document.getElementById('scenarioNote').innerHTML = SCENARIOS[current].note;
+render();
+</script>

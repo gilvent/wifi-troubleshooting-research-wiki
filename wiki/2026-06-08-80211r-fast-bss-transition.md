@@ -1,8 +1,8 @@
 ---
 title: 802.11r — Fast BSS Transition (FT)
-tags: [80211r, fast-bss-transition, ft, key-hierarchy, roaming, security]
+tags: [80211r, fast-bss-transition, ft, key-hierarchy, roaming, security, multi-band]
 sources: [references/80211-2024.pdf]
-updated: 2026-09-21
+updated: 2026-10-21
 ---
 
 # 802.11r — Fast BSS Transition (FT)
@@ -231,3 +231,11 @@ roam.
 For over-the-DS only: **FT Request**, **FT Response**, **FT Confirm**, **FT Ack**
 (distinguished by the FT Action field). Carried between FTO and current AP; current AP
 encapsulates to the target AP over the DS (§13.10.3, RRB).
+
+## 9. Multi-band (cross-band) roaming
+
+The operating band is not a parameter of FT: §13.1 scopes it to APs "within the same mobility
+domain within the same ESS," and each per-band radio is its own R1KH with its own PMK-R1
+(§13.2.2), so a move between bands is an ordinary FT roam. Discovery, BTM steering, OCI, and
+cross-band failure modes are covered in
+[Cross-Band Roaming with 802.11k/v/r](2026-10-21-cross-band-roaming.md).
