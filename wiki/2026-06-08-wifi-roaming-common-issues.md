@@ -9,7 +9,7 @@ updated: 2026-06-08
 
 *Ten well-documented WiFi-roaming faults, framed as `(Category, Root Cause, Key Signals)` like the
 NIKA "Network Issues" taxonomy — the candidate `I = (Dev, Comp, RC)` faults to inject into the
-[Home WiFi Roaming Scenario](home-wifi-roaming-scenario.md).*
+[Home WiFi Roaming Scenario](2026-06-08-home-wifi-roaming-scenario.md).*
 
 > Sources: curated via `/deep-research` (5 search angles, 21 sources fetched, 25 falsifiable claims
 > 3-vote adversarially verified → 24 confirmed, 1 refuted/excluded). Primary vendor docs (Cisco,
@@ -25,7 +25,7 @@ NIKA "Network Issues" taxonomy — the candidate `I = (Dev, Comp, RC)` faults to
 Each row is one injectable issue. **Key Signals** are the observable symptoms — log lines, frame
 exchanges, RSSI/metric thresholds — an operator or agent would see, not the fix. The
 `(Dev, Comp)` column maps the issue onto the scenario's device/component coordinates (see
-[scenario §0](home-wifi-roaming-scenario.md#0-where-this-fits-in-nika)).
+[scenario §0](2026-06-08-home-wifi-roaming-scenario.md#0-where-this-fits-in-nika)).
 
 ## The catalog
 
@@ -93,6 +93,6 @@ exchanges, RSSI/metric thresholds — an operator or agent would see, not the fi
 
 ## Related pages
 
-- [Home WiFi Roaming Scenario](home-wifi-roaming-scenario.md) — the `N` these issues inject into.
+- [Home WiFi Roaming Scenario](2026-06-08-home-wifi-roaming-scenario.md) — the `N` these issues inject into.
 - [802.11k](2026-06-08-80211k-radio-resource-measurement.md) · [802.11v](2026-06-08-80211v-wireless-network-management.md) · [802.11r](2026-06-08-80211r-fast-bss-transition.md) — the standard mechanisms behind issues #2–#7.
-- [NIKA — Problem Specification Method](nika-problem-specification-summary.md) — the `(Dev, Comp, RC)` issue formalism this catalog follows.
+- [NIKA — Problem Specification Method](2026-06-08-nika-problem-specification-summary.md) — the `(Dev, Comp, RC)` issue formalism this catalog follows.

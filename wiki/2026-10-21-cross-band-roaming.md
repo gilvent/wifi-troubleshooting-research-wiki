@@ -86,7 +86,7 @@ bands is only where the client radio is during the negotiation:
 - **Over-the-DS** — FT Action frames go through the current AP (§13.1), so the radio stays on
   the serving band through the key exchange and only tunes to the target for Reassociation.
 
-The [packet walkthrough](80211r-ft-packet-walkthrough.md#5-over-the-air-vs-over-the-ds-at-a-glance)
+The [packet walkthrough](2026-06-17-80211r-ft-packet-walkthrough.md#5-over-the-air-vs-over-the-ds-at-a-glance)
 compares the two methods frame by frame.
 
 ## 5. Channel validation — OCI

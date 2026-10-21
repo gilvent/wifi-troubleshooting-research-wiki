@@ -52,7 +52,7 @@ gap:
 | Initial association | ~116 ms | full join, baseline |
 | Plain RSN roam (802.1X) | ~119 ms | of which **~90 ms is EAP** |
 | CCKM (Cisco) | ~7 ms | client passes traffic on Reassoc Response |
-| 802.11r FT over-the-air | ~14 ms | see [FT packet walkthrough](80211r-ft-packet-walkthrough.md) |
+| 802.11r FT over-the-air | ~14 ms | see [FT packet walkthrough](2026-06-17-80211r-ft-packet-walkthrough.md) |
 | 802.11r FT over-the-DS | ~88 ms | observed; via DS relay, see same page |
 
 > These are single-lab numbers (one vendor, fixed channels), not universal constants — use
@@ -64,10 +64,10 @@ gap:
 | Method | Standardized | What it removes | Page |
 |---|---|---|---|
 | **Preauthentication** | 802.11-2007 | Pre-runs 802.1X with future APs over the DS | — |
-| **PMK Caching (SKC / "sticky")** | 802.11-2007 | Skips 802.1X on *return* to a known AP | [Key caching](wifi-roaming-key-caching.md) |
-| **OKC** (Opportunistic Key Caching) | Vendor (de-facto) | Skips 802.1X across all APs sharing a cached PMK | [Key caching](wifi-roaming-key-caching.md) |
-| **CCKM** (Cisco) | Proprietary (needs CCX) | Skips 802.1X *and* 4-way handshake | [Key caching](wifi-roaming-key-caching.md) |
-| **802.11r FT** | 802.11r-2008 | Pre-computes the PTK before the roam; one round trip | [FT (spec)](2026-06-08-80211r-fast-bss-transition.md) · [FT in practice](80211r-ft-packet-walkthrough.md) |
+| **PMK Caching (SKC / "sticky")** | 802.11-2007 | Skips 802.1X on *return* to a known AP | [Key caching](2026-06-17-wifi-roaming-key-caching.md) |
+| **OKC** (Opportunistic Key Caching) | Vendor (de-facto) | Skips 802.1X across all APs sharing a cached PMK | [Key caching](2026-06-17-wifi-roaming-key-caching.md) |
+| **CCKM** (Cisco) | Proprietary (needs CCX) | Skips 802.1X *and* 4-way handshake | [Key caching](2026-06-17-wifi-roaming-key-caching.md) |
+| **802.11r FT** | 802.11r-2008 | Pre-computes the PTK before the roam; one round trip | [FT (spec)](2026-06-08-80211r-fast-bss-transition.md) · [FT in practice](2026-06-17-80211r-ft-packet-walkthrough.md) |
 | **802.11k** | assist | Neighbor Report → smarter, faster target selection | [802.11k](2026-06-08-80211k-radio-resource-measurement.md) |
 | **802.11v** | assist | BTM → network can *steer* the client to a better AP | [802.11v](2026-06-08-80211v-wireless-network-management.md) |
 
@@ -80,10 +80,10 @@ client picks and *when*.
 The source course frames the same material as a module (`wifi-roaming-analysis.jpg`):
 
 - **L4.0** Roaming Overview — *this page*
-- **L4.1** Key Caching — [Key caching](wifi-roaming-key-caching.md)
+- **L4.1** Key Caching — [Key caching](2026-06-17-wifi-roaming-key-caching.md)
 - **L4.2** Fast BSS Transition — Intro — [802.11r (spec)](2026-06-08-80211r-fast-bss-transition.md)
-- **L4.3** FT over-the-Air — [FT packet walkthrough §3](80211r-ft-packet-walkthrough.md)
-- **L4.4** FT over-the-DS — [FT packet walkthrough §4](80211r-ft-packet-walkthrough.md)
+- **L4.3** FT over-the-Air — [FT packet walkthrough §3](2026-06-17-80211r-ft-packet-walkthrough.md)
+- **L4.4** FT over-the-DS — [FT packet walkthrough §4](2026-06-17-80211r-ft-packet-walkthrough.md)
 - **L4.5** Roaming with 802.11k — [802.11k](2026-06-08-80211k-radio-resource-measurement.md)
 - **L4.6** Roaming with 802.11v — [802.11v](2026-06-08-80211v-wireless-network-management.md)
 

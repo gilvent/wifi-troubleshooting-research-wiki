@@ -131,7 +131,7 @@ An over-the-air capture near the client records the frames a roam is actually ma
 - **Time-sync across sniffers** — a remote-capture timestamp is "the time that the packet is received by the client [analyzer] ... not synchronized with the time on the AP" ([Aruba](https://arubanetworking.hpe.com/techdocs/CLI-Bank/Content/aos8/ap-pkt_cpt.htm)); merging multiple independent sniffers into one roam timeline needs external clock discipline the tools don't provide by default — see §8.
 - **SKU churn** — specific gear ages faster than the method: LiveAction's 802.11n adapter carries an End-of-Sale notice and the `wifiexplorer-sensor` project is deprecated (the capability persists via Airtool Pi). The *mechanism* is stable; the parts list is not.
 
-This is the mechanism the wiki's own [home-lab testbed](home-wifi-roaming-scenario.md) already uses in miniature — its "monitor capture" node is a single-channel instance of exactly this.
+This is the mechanism the wiki's own [home-lab testbed](2026-06-08-home-wifi-roaming-scenario.md) already uses in miniature — its "monitor capture" node is a single-channel instance of exactly this.
 
 ## 7. Relevance to the edge-diagnostic-agent research direction
 
@@ -158,7 +158,7 @@ Added with the §6 sniffer research (2026-08-07):
 
 ## Related pages
 
-- [Home WiFi Roaming Scenario](home-wifi-roaming-scenario.md) — the testbed whose telemetry table (hostapd events, station dumps, monitor capture) is the DIY analog of mechanisms 1–3 here.
+- [Home WiFi Roaming Scenario](2026-06-08-home-wifi-roaming-scenario.md) — the testbed whose telemetry table (hostapd events, station dumps, monitor capture) is the DIY analog of mechanisms 1–3 here.
 - [802.11k — Radio Resource Measurement](2026-06-08-80211k-radio-resource-measurement.md) — the beacon-report primitive that turns clients into sensors.
 - [802.11v — Wireless Network Management](2026-06-08-80211v-wireless-network-management.md) — BTM as the steering actuator vendors wrap policies around.
 - [Common WiFi Roaming Issues](2026-06-08-wifi-roaming-common-issues.md) — the fault classes this telemetry must discriminate.

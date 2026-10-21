@@ -13,7 +13,7 @@ injected and graded.*
 
 > Sources: NIKA problem-specification method — incident tuple `(N, I, T)`, esp. the `N` component
 > (topology + devices + protocols + initial configs, control plane, deployed telemetry),
-> *NIKA paper* §3.2 (see [NIKA — Problem Specification Method](nika-problem-specification-summary.md)).
+> *NIKA paper* §3.2 (see [NIKA — Problem Specification Method](2026-06-08-nika-problem-specification-summary.md)).
 > Protocol/config layer grounded in IEEE Std 802.11-2024 via
 > [802.11k](2026-06-08-80211k-radio-resource-measurement.md) (Clause 11.10),
 > [802.11v](2026-06-08-80211v-wireless-network-management.md) (Clause 11.21.7, BTM),
@@ -178,5 +178,5 @@ an agent any subset (e.g. logs-only, or logs + station dump but no sniffer) to v
 
 ## 5. Related pages
 
-- [NIKA — Problem Specification Method](nika-problem-specification-summary.md) — the `(N, I, T)` + `G` framing this scenario instantiates.
+- [NIKA — Problem Specification Method](2026-06-08-nika-problem-specification-summary.md) — the `(N, I, T)` + `G` framing this scenario instantiates.
 - [802.11k](2026-06-08-80211k-radio-resource-measurement.md) · [802.11v](2026-06-08-80211v-wireless-network-management.md) · [802.11r](2026-06-08-80211r-fast-bss-transition.md) — the protocol layer configured above.

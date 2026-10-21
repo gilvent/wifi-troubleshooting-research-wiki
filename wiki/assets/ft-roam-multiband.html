@@ -426,7 +426,7 @@
     <span class="legend-item"><span class="swatch dash"></span>advertisement / backplane</span>
   </div>
 
-  <p class="foot">Grounded in the wiki's <b>802.11r — Fast BSS Transition</b> page, §9 <i>Multi-band (cross-band) roaming</i>, and the FT packet walkthrough. The two APs may equally be two radios of one physical AP; what matters is they share the <code>MDID</code> and each band's radio is its own R1KH holding its own PMK-R1 off the single PMK-R0. The <code>OCI</code> subelement (Operating Channel Validation) authenticates <i>which</i> band/channel the roam landed on. Backplane hops (fetching the target band's PMK-R1 from the R0KH) are the transport the standard leaves <code>out of scope</code> — the classic <code>R0KH_UNREACHABLE</code> failure. Field lists are representative, not byte-exact.</p>
+  <p class="foot">Grounded in the wiki's <b>Cross-Band Roaming with 802.11k/v/r</b> page and the FT packet walkthrough. The two APs may equally be two radios of one physical AP; what matters is they share the <code>MDID</code> and each band's radio is its own R1KH holding its own PMK-R1 off the single PMK-R0. The <code>OCI</code> subelement (Operating Channel Validation) authenticates <i>which</i> band/channel the roam landed on. Backplane hops (fetching the target band's PMK-R1 from the R0KH) are the transport the standard leaves <code>out of scope</code> — the classic <code>R0KH_UNREACHABLE</code> failure. Field lists are representative, not byte-exact.</p>
 </div>
 
 <script>
@@ -483,7 +483,7 @@ const SCENARIOS = {
       { from:'ap1', to:'client', label:'Neighbor Report (k)', style:'dash', ref:'k · 9.4.2.35',
         name:'802.11k Neighbor Report', fields:['AP-2 BSSID','Op Class + Channel (6 GHz ch37)','BSSID Info: Mobility Domain = 1'],
         prose:'While still on 5 GHz, the client learns of a same-domain neighbor on another band. The Operating Class + Channel Number tell it the target lives on 6 GHz; the Mobility Domain bit confirms it is FT-capable here.' },
-      { note:true, label:'Client tunes radio → 6 GHz ch37 (off serving band)', ref:'§9',
+      { note:true, label:'Client tunes radio → 6 GHz ch37 (off serving band)', ref:'§13.1',
         name:'Radio tunes to the target band', fields:['(no frame — physical channel change)'],
         radio:{ band:'6 GHz', ch:'ch37', state:'off' },
         prose:'A radio is on one channel at a time. To authenticate directly with the 6 GHz target the client must leave its 5 GHz serving channel now — an off-band excursion before it is reassociated anywhere.' },

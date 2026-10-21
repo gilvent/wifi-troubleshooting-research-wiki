@@ -13,7 +13,7 @@ reused, and whether the 4-way handshake is also avoided.*
 
 > Sources: mrn-cciew CWSP **802.11 Roaming Basics** (2014-09-02) and **Fast Roaming
 > Lessons** course index (2020-12-10). Standardized methods are from 802.11-2007; OKC and
-> CCKM are vendor mechanisms. See [WiFi roaming overview](wifi-roaming-overview.md) for how
+> CCKM are vendor mechanisms. See [WiFi roaming overview](2026-06-17-wifi-roaming-overview.md) for how
 > these compare to 802.11r FT.
 
 ## 1. The idea
@@ -64,7 +64,7 @@ CCKM). 802.11r **FT** goes further: it pre-establishes a key hierarchy once and
 **pre-computes the PTK before the client leaves**, so the roam completes in one round trip
 without a separate 4-way handshake — and does so as an open multi-vendor standard. See
 [802.11r (spec)](2026-06-08-80211r-fast-bss-transition.md) and the
-[FT packet walkthrough](80211r-ft-packet-walkthrough.md).
+[FT packet walkthrough](2026-06-17-80211r-ft-packet-walkthrough.md).
 
 | | EAP skipped | 4-way handshake skipped | PMK reuse scope | Standard |
 |---|---|---|---|---|
